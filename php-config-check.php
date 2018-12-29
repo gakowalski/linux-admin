@@ -85,6 +85,11 @@ function check_ini_value($key, $value) {
       break;
 
     case 'open_basedir':
+    case 'error_log':
+      // see previous switch
+      break;
+
+    case 'open_basedir':
       if ($value == '/var/www/') {
         warning($key, $value, 'consider setting individual values for each PHP app (eg. /var/www/website1)');
       }
