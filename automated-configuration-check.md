@@ -63,6 +63,12 @@ wget https://raw.githubusercontent.com/major/MySQLTuner-perl/master/vulnerabilit
 perl mysqltuner.pl
 ```
 
+# PHP
+
+## iniscan
+
+* URL: https://github.com/psecio/iniscan
+
 # SSH
 
 ## Configuration testing
