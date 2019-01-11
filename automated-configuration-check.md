@@ -7,6 +7,19 @@ sudo yum -y install lynis
 sudo lynis audit system
 ```
 
+Installing lynis plugins:
+
+```
+cd `sudo lynis show plugindir`
+sudo wget https://github.com/CISOfy/lynis/raw/master/plugins/plugin_pam_phase1
+sudo wget https://github.com/CISOfy/lynis/raw/master/plugins/plugin_systemd_phase1
+sudo wget https://github.com/0x25/lynis-plugin/raw/master/plugin_net_phase2
+sudo touch /etc/lynis/custom.prf
+echo 'plugin=net' | sudo tee -a /etc/lynis/custom.prf
+```
+
+(Phase 1 plugins gather data for Phase 2 plugins.)
+
 See also:
 * rkhunter
 
