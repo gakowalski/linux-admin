@@ -1,6 +1,8 @@
 # Linux
 
-## lynis
+## General
+
+### lynis
 
 ```
 sudo yum -y install lynis
@@ -20,10 +22,15 @@ echo 'plugin=net' | sudo tee -a /etc/lynis/custom.prf
 
 (Phase 1 plugins gather data for Phase 2 plugins.)
 
+### Other
+
 See also:
 * rkhunter
+* https://github.com/trimstray/otseca
+* https://github.com/infertux/sysechk
+* https://github.com/XalfiE/Nix-Auditor
 
-## General configuration checks
+### General configuration checks
 
 ```
 sudo sshd -t
@@ -39,6 +46,10 @@ See also:
 * https://www.cyberciti.biz/tips/check-unix-linux-configuration-file-for-syntax-errors.html
 * checking syntax of bash script: `bash -n ./myscript`
 * checking syntax of perl script: `perl -wc script.pl`
+
+## SuSE
+
+* https://github.com/vpereira/seccheck
 
 # Apache
 
@@ -75,6 +86,12 @@ wget https://raw.githubusercontent.com/major/MySQLTuner-perl/master/basic_passwo
 wget https://raw.githubusercontent.com/major/MySQLTuner-perl/master/vulnerabilities.csv -O vulnerabilities.csv
 perl mysqltuner.pl
 ```
+
+# docker
+
+## docker-bench-security
+
+* https://github.com/docker/docker-bench-security
 
 # PHP
 
