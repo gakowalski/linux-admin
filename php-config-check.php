@@ -5,6 +5,8 @@
 // https://www.cyberciti.biz/tips/php-security-best-practices-tutorial.html
 // https://www.owasp.org/index.php/PHP_Configuration_Cheat_Sheet
 
+// TODO: check if mysqlnd is used instead of mysql, recommend mysqlnd
+
 $ini_keys = array(
   'allow_url_fopen',
   'allow_url_include',
