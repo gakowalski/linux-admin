@@ -26,6 +26,33 @@ LANG=en_GB.UTF-8
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
 ```
 
+### Memory usage
+
+```
+free -h | grep -e total -e Mem
+
+              total        used        free      shared  buff/cache   available
+Mem:            15G        1.4G        2.4G        983M         11G         12G
+```
+
+### Disk usage
+
+```
+$ df -h --total -x tmpfs -x devtmpfs | grep -e Size -e total
+
+Filesystem               Size  Used Avail Use% Mounted on
+total                    109G   35G   75G  32% -
+```
+
+### Measure IOPS
+
+```
+sudo yum install sysstat
+iostat
+```
+
+IOPS are in column "tps". Also, you can execute `iostat -x` and sum columns "r/s" (reads) and "w/s" (writes).
+
 ## Centos 6
 
 ### Hostname, Linux version, Kernel version, CPU architecture
@@ -69,6 +96,12 @@ $ ip addr show | grep inet
     inet6 fe80::250:56ff:febc:1b3/64 scope link
     inet 192.168.31.41/24 brd 192.168.31.255 scope global eth1
     inet6 fe80::250:56ff:febc:1b4/64 scope link
+```
+
+### Network statistics
+
+```
+$ ip -s -h -c addr
 ```
 
 ### Time on system
@@ -160,6 +193,12 @@ tmpfs                 7,4G     0  7,4G   0% /dev/shm
 ```
 
 ### Updates
+
+```
+$ yum list updates
+```
+
+or
 
 ```
 $ yum check-update
