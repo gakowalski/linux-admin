@@ -53,6 +53,12 @@ iostat
 
 IOPS are in column "tps". Also, you can execute `iostat -x` and sum columns "r/s" (reads) and "w/s" (writes).
 
+### List open ports
+
+```
+sudo firewall-cmd --zone=public --list-ports
+```
+
 ## Centos 6
 
 ### Hostname, Linux version, Kernel version, CPU architecture
