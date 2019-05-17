@@ -6,6 +6,12 @@ Define function:
 goto() { cd `locate $1 | head -n 1`; }
 ```
 
+or simpler version with additional `pwd`:
+
+```bash
+goto() { cd `locate -n 1 $1` && pwd; }
+```
+
 Change directory (example):
 
 ```
