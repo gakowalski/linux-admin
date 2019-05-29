@@ -64,6 +64,11 @@ $ du --all --human-readable --max-depth=1 --block-size=1M | sort --human-numeric
 30269   .
 ```
 
+Aliased:
+```
+alias folder-size='du --all --human-readable --max-depth=1 --block-size=1M | sort --human-numeric-sort'
+```
+
 ### Measure IOPS
 
 ```
