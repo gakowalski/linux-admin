@@ -258,3 +258,49 @@ kernel-headers.i686                   2.6.32-754.9.1.el6                 updates
 
 * `$ ls /etc/init.d/`
 * `chkconfig --list`
+
+# Other
+
+## docker
+
+```bash
+docker_ssh() { docker exec -it $1 /bin/bash; }
+```
+
+## Centos 7
+
+### Permissions
+
+#### Docker
+
+```bash
+sudo usermod --append --groups adm `whoami`
+sudo usermod --append --groups docker `whoami`
+```
+
+```bash
+chadm() { sudo -- sh -c "chown :adm $1 && chmod g+rX $1"; }
+chadm /var/lib/docker
+chadm /var/lib/docker/volumes
+chadm /var/lib/docker/devicemapper
+chadm /var/lib/docker/devicemapper/mnt
+```
+
+#### Apache logs
+
+```bash
+sudo usermod --append --groups adm `whoami`
+sudo chown -R :adm /var/log/httpd
+sudo chmod -R g+rX /var/log/httpd
+```
+
+### General
+
+#### Make directory accessible for administrators
+
+NOT recursive function:
+
+```bash
+sudo usermod --append --groups adm `whoami`
+chadm() { sudo -- sh -c "chown :adm $1 && chmod g+rX $1"; }
+```
