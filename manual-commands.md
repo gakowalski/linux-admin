@@ -67,6 +67,7 @@ $ du --all --human-readable --max-depth=1 --block-size=1M | sort --human-numeric
 Aliased:
 ```
 alias folder-size='du --all --human-readable --max-depth=1 --block-size=1M | sort --human-numeric-sort'
+alias folder-size-sudo='sudo du --all --human-readable --max-depth=1 --block-size=1M | sort --human-numeric-sort'
 ```
 
 ### Measure IOPS
