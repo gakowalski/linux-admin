@@ -46,28 +46,9 @@ total                    109G   35G   75G  32% -
 
 ### Analyzing folder size
 
-`$ du -ahm --max-depth=1 | sort -h`
-
-or
-
-`$ du --all --human-readable --max-depth=1 --block-size=1M | sort --human-numeric-sort`
-
-Example:
-
 ```
-$ du --all --human-readable --max-depth=1 --block-size=1M | sort --human-numeric-sort
-
-2       ./libchart
-5       ./system
-67      ./application
-30197   ./media
-30269   .
-```
-
-Aliased:
-```
-alias folder-size='du --all --human-readable --max-depth=1 --block-size=1M | sort --human-numeric-sort'
-alias folder-size-sudo='sudo du --all --human-readable --max-depth=1 --block-size=1M | sort --human-numeric-sort'
+sudo yum install ncdu
+ndcu
 ```
 
 ### Measure IOPS
