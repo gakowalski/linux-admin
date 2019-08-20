@@ -46,6 +46,15 @@ total                    109G   35G   75G  32% -
 
 ### Analyzing folder size
 
+#### ncdu
+
+```
+sudo yum install ncdu
+ndcu
+```
+
+#### du
+
 `$ du -ahm --max-depth=1 | sort -h`
 
 or
