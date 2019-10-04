@@ -11,7 +11,7 @@ sudo yum -y install deltarpm
 sudo yum update
 sudo yum autoremove
 sudo yum -y install rpmorphan
-sudo rpmorphan
+sudo rpmorphan -curses
 sudo rpmduplicates
 ```
 
