@@ -1,5 +1,16 @@
 # System information
 
+## Android (via Termux)
+
+* Hostname: `hostname`
+* Linux version: TODO
+* Kernel version: `uname -r`
+* CPU architecture: `cat /proc/cpuinfo`
+* Environment: `printenv`
+* Memory usage: `free`, more readable: `free -h | grep -e total -e Mem`
+* Disk usage: `df`, more readable: `df -h`
+* List open ports: TODO
+
 ## Centos 7
 
 ### Hostname, Linux version, Kernel version, CPU architecture
