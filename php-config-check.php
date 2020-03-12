@@ -16,6 +16,9 @@ $ini_keys = array(
   'ignore_repeated_errors',
   'disable_functions',
   'open_basedir',
+  'post_max_size',
+  'default_charset',
+  'file_uploads',
 );
 
 // TO DO: how to disable eval? it's not a function!
@@ -33,19 +36,67 @@ $functions_to_be_disabled = array(
   'show_source',
 );
 
+$info_counter = 0;
+$ini_local_copy = [];
+
+function prepare_options($options, $default_options) {
+  return array_merge($default_options, $options);
+}
+
+function info($msg, $options = []) {
+  global $info_counter;
+
+  $options = prepare_options($options, [
+    'suffix' => "\n",
+  ]);
+
+  echo "[$info_counter] → $msg" . $options['suffix'];
+  return ++$info_counter;
+}
+
 function warning($key, $value, $message) {
   if ($value === '') $value = 'an empty string';
-  echo "$key is $value - WARNING, $message\n";
+  info("$key is $value - WARNING, $message");
 }
 function advice($key, $value, $new_value) {
   warning($key, $value, "should be '$new_value'!");
 }
 
+// taken from on: https://stackoverflow.com/a/22500394/925196
+function size_to_bytes($size)
+{
+    $suffix = strtoupper(substr($size, -1));
+    if (!in_array($suffix, array('P','T','G','M','K'))){
+        return (int) $size;
+    }
+    $value = substr($size, 0, -1);
+    switch ($suffix) {
+        case 'P': $value *= 1024; // Fallthrough intended
+        case 'T': $value *= 1024; // Fallthrough intended
+        case 'G': $value *= 1024; // Fallthrough intended
+        case 'M': $value *= 1024; // Fallthrough intended
+        case 'K': $value *= 1024; break;
+    }
+    return $value;
+}
+
 function check_ini_key($key) {
-  if (get_cfg_var($key) != ini_get($key)) {
-    echo "$key has different values in config file and at runtime!\n";
+  global $ini_local_copy;
+
+  if (isset($ini_local_copy[$key])) {
+    return $ini_local_copy[$key];
   }
-  return check_ini_value($key, ini_get($key));
+
+  if (get_cfg_var($key) != ini_get($key)) {
+    info("$key has different values in config file and at runtime!");
+  }
+
+  $runtime_value = ini_get($key);
+  $ini_local_copy[$key] = $runtime_value;
+
+  check_ini_value($key, $runtime_value);
+
+  return $runtime_value;
 }
 
 function check_ini_value($key, $value) {
@@ -79,7 +130,7 @@ function check_ini_value($key, $value) {
 
     case 'log_errors':
       if ($value == 1) {
-        echo "$key is On, checking dependent keys\n\t";
+        info("$key is On, checking dependent keys...");
         check_ini_key('error_log');
       } else {
         advice($key, $value, 'On');
@@ -101,16 +152,35 @@ function check_ini_value($key, $value) {
       $functions = explode(',', $value);
       $diff = array_intersect(array_diff($functions_to_be_disabled, $functions), $functions_to_be_disabled);
       warning($key, $value, "consider adding '$diff'");
-      break;
+    break;
+
+    case 'post_max_size':
+      $upload_size = check_ini_key('upload_max_filesize');
+      if (size_to_bytes($value) < size_to_bytes($upload_size)) {
+        warning($key, $value, "should be bigger than upload_max_filesize ($upload_size)");
+      }
+    break;
+
+    case 'upload_max_filesize':
+      // checked together with post_max_size
+    break;
+
+    case 'default_charset':
+      if ($value != 'UTF-8') advice($key, $value, 'UTF-8');
+    break;
+
+    case 'file_uploads':
+      if (!$value) advice($key, $value, 'On');
+    break;
 
     default:
-      echo "Unknown INI key $key - INTERNAL ERROR!\n";
+      info("Unknown INI key $key - INTERNAL ERROR!");
   }
 }
 
-echo "cfg_file_path:".get_cfg_var('cfg_file_path')."\n";
-echo "Loaded INI file:".php_ini_loaded_file()."\n";
-echo "Scanned INI files:".php_ini_scanned_files()."\n";
+info("cfg_file_path: " . get_cfg_var('cfg_file_path'));
+info("Loaded INI file: " . php_ini_loaded_file());
+info("Scanned INI files: " . php_ini_scanned_files());
 
 
 foreach ($ini_keys as $key) {
