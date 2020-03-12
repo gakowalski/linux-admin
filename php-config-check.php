@@ -178,10 +178,72 @@ function check_ini_value($key, $value) {
   }
 }
 
+$options = getopt('', [
+  'httpd::',
+  'protocol:',
+  'host:',
+  'port:',
+]);
+
+if (isset($options['protocol'])) {
+  $protocol = $options['protocol'];
+} else {
+  $protocol = 'http';
+}
+
+if (isset($options['host'])) {
+  $host = $options['host'];
+} else {
+  $host = '127.0.0.1';
+}
+$host = rtrim($host, '/') . '/';
+
+if (isset($options['httpd'])) {
+  $document_root = $options['httpd'];
+  if ($document_root == false) {
+    info("No document root specified, trying to read it from httpd -S");
+    $document_root = exec('httpd -S | grep "Main DocumentRoot"');
+    if (preg_match('/(\/[\/a-zA-Z]+)/', $document_root, $matches)) {
+      $document_root = $matches[0];
+      info("Extracted document root: $document_root");
+    } else {
+      info("Couldn't extract document root");
+      exit(-1);
+    };
+  }
+  if (file_exists($document_root)) {
+    if (is_writable($document_root)) {
+      $file = basename(__FILE__);
+      $target = "$document_root/$file";
+      if (copy(__FILE__, $target)) {
+        $output = file_get_contents("$protocol://$host/$file");
+        if ($output === false) {
+          info("Can't read from webserver");
+          exit(-1);
+        } else {
+          echo $output;
+          if (unlink($target) === false) {
+            echo "COULD'T REMOVE SCRIPT FROM THE WEBSERVER, DO IT MANUALLY\n";
+          };
+          exit(0);
+        }
+      } else {
+        info("Couldn't put ".__FILE__." at $target");
+        exit(-1);
+      };
+    } else {
+      info("Document root is not writable");
+      exit(-1);
+    }
+  } else {
+    info("Document root not exits!");
+    exit(-1);
+  }
+}
+
 info("cfg_file_path: " . get_cfg_var('cfg_file_path'));
 info("Loaded INI file: " . php_ini_loaded_file());
 info("Scanned INI files: " . php_ini_scanned_files());
-
 
 foreach ($ini_keys as $key) {
   check_ini_key($key);
