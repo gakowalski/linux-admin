@@ -219,14 +219,13 @@ if (isset($options['httpd'])) {
         $output = file_get_contents("$protocol://$host/$file");
         if ($output === false) {
           info("Can't read from webserver");
-          exit(-1);
         } else {
           echo $output;
-          if (unlink($target) === false) {
-            echo "COULD'T REMOVE SCRIPT FROM THE WEBSERVER, DO IT MANUALLY\n";
-          };
-          exit(0);
         }
+        if (unlink($target) === false) {
+          echo "\nCOULD'T REMOVE SCRIPT FROM THE WEBSERVER, DO IT MANUALLY\n";
+        };
+        exit(($output === false) ? -1 : 0);
       } else {
         info("Couldn't put ".__FILE__." at $target");
         exit(-1);
@@ -241,6 +240,13 @@ if (isset($options['httpd'])) {
   }
 }
 
+if (http_response_code() !== false) {
+  info('Running online as ' . $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST']. $_SERVER['REQUEST_URI']);
+} else {
+  info('Running offline (probably in "cli" environment)');
+}
+
+info('PHP Version: ' . phpversion());
 info("cfg_file_path: " . get_cfg_var('cfg_file_path'));
 info("Loaded INI file: " . php_ini_loaded_file());
 info("Scanned INI files: " . php_ini_scanned_files());
