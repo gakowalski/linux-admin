@@ -1,5 +1,8 @@
 <?php
 
+// do not modify
+$line_check = __LINE__;
+
 // inspiration:
 // https://www.cyberciti.biz/faq/linux-unix-apache-lighttpd-phpini-disable-functions/
 // https://www.cyberciti.biz/tips/php-security-best-practices-tutorial.html
@@ -19,6 +22,10 @@ $ini_keys = array(
   'post_max_size',
   'default_charset',
   'file_uploads',
+  'upload_tmp_dir',
+  'extension_dir',
+  'user_dir',
+  'include_path',
 );
 
 // TO DO: how to disable eval? it's not a function!
@@ -87,11 +94,16 @@ function check_ini_key($key) {
     return $ini_local_copy[$key];
   }
 
-  if (get_cfg_var($key) != ini_get($key)) {
-    info("$key has different values in config file and at runtime!");
+  $config_value = get_cfg_var($key);
+  $runtime_value = ini_get($key);
+
+  if ($config_value != $runtime_value) {
+    info("$key has different values in config file and at runtime");
+    info("\t\tconfig:  $config_value");
+    info("\t\truntime: $runtime_value");
   }
 
-  $runtime_value = ini_get($key);
+
   $ini_local_copy[$key] = $runtime_value;
 
   check_ini_value($key, $runtime_value);
@@ -101,17 +113,47 @@ function check_ini_key($key) {
 
 function check_ini_value($key, $value) {
   if ($value === '') {
-    warning($key, $value, 'appears empty, unknown default value is applied or no value is applied');
-    return;
+    switch ($key) {
+      case 'user_dir':
+        // if empty, setting is unused
+        return;
+
+      case 'upload_tmp_dir':
+        warning($key, $value, 'appears empty, PHP will try to use the system\'s default tmp dir ' . sys_get_temp_dir());
+        return;
+
+      default:
+        warning($key, $value, 'appears empty, unknown default value is applied or no value is applied');
+        return;
+    }
   }
 
   // checking file/directory existence
   switch ($key) {
     case 'open_basedir':
     case 'error_log':
+    case 'upload_tmp_dir':
+      if (file_exists($value) === false) {
+        warning($key, $value, 'file/directory appears to be non-existent');
+      } else if (is_writable($value)) {
+        warning($key, $value, 'is not writable');
+      }
+    break;
+
+    case 'extension_dir':
       if (file_exists($value) === false) {
         warning($key, $value, 'file/directory appears to be non-existent');
       }
+      return;
+
+    case 'include_path':
+      if (check_path_collection($value, ['writable' => false]) === false) return;
+    break;
+
+    case 'open_basedir':
+      if (check_path_collection($value) === false) return;
+    break;
+
     default:
   }
 
@@ -137,13 +179,12 @@ function check_ini_value($key, $value) {
       }
       break;
 
-    case 'open_basedir':
     case 'error_log':
       // see previous switch
       break;
 
     case 'open_basedir':
-      if ($value == '/var/www/') {
+      if (in_path_collection('/var/www/', $value)) {
         warning($key, $value, 'consider setting individual values for each PHP app (eg. /var/www/website1)');
       }
     break;
@@ -176,6 +217,52 @@ function check_ini_value($key, $value) {
     default:
       info("Unknown INI key $key - INTERNAL ERROR!");
   }
+}
+
+function check_path($path, $options = []) {
+  $options = prepare_options($options, [
+    'writable'  =>  true,
+    'readable'  =>  true,
+    'directory' =>  true,
+  ]);
+  extract($options);
+
+  $tmp = realpath($path); //< realpath returns false if path is non-existing
+  if ($tmp) $path = $tmp;
+
+  if ($tmp === false || file_exists($path) === false) {
+    info("path $path appears to be non-existent");
+    return false;
+  } else if ($readable && is_readable($path) === false) {
+    info("path $path appears to be non-readable");
+    return false;
+  } else if ($writable && is_writable($path) === false) {
+    info("path $path appears to be non-writable");
+    return false;
+  } else if ($directory && is_file($path)) {
+    info("path $path appears to be a file, not a directory");
+    return false;
+  }
+  return true;
+}
+
+function check_path_collection($path_collection, $options = []) {
+  $array = explode(PATH_SEPARATOR, $path_collection);
+  foreach ($array as $path_root) {
+    if (check_path($path_root, $options) === false) return false;;
+  }
+  return true;
+}
+
+function in_path_collection($single_path, $path_collection) {
+  $array = explode(PATH_SEPARATOR, $path_collection);
+  $single_path = realpath($single_path);
+
+  foreach ($array as $path_root) {
+    if (strpos($single_path, realpath($path_root))) return $path_root;
+  }
+
+  return false;
 }
 
 $options = getopt('', [
@@ -244,12 +331,23 @@ if (http_response_code() !== false) {
   info('Running online as ' . $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST']. $_SERVER['REQUEST_URI']);
 } else {
   info('Running offline (probably in "cli" environment)');
+  if (ini_get('open_basedir')) {
+    info("Enabled open_basedir directive can cause some checks to be skipped or to throw errors");
+    info("Consider running this script with parameter -d open_basedir=Off");
+  }
 }
 
 info('PHP Version: ' . phpversion());
 info("cfg_file_path: " . get_cfg_var('cfg_file_path'));
 info("Loaded INI file: " . php_ini_loaded_file());
 info("Scanned INI files: " . php_ini_scanned_files());
+
+if (!defined("PATH_SEPARATOR")) {
+  info("constant PATH_SEPARATOR is not defined - strange things can happen");
+}
+if ($line_check !== 4) {
+  info("magic constant __LINE__ seems to return wrong numbers for this script!");
+}
 
 foreach ($ini_keys as $key) {
   check_ini_key($key);
