@@ -21,7 +21,8 @@ extract(prepare_options(getopt('', [
 ]));
 
 if (isset($help)) {
-  echo "\n\tphp " . basename(__FILE__) . " [OPTIONS]
+  $me = basename(__FILE__);
+  echo "\n\tphp $me [OPTIONS]
 
   Possible options:
 
@@ -37,8 +38,8 @@ if (isset($help)) {
 
   Examples:
 
-    --dir=/var/www/html/wordpress --report
-    --dir=c:/xampp/htdocs/wp --adduser=john.doe
+    $me --dir=/var/www/html/wordpress --report
+    php $me --dir=c:/xampp/htdocs/wp --adduser --username=john.doe --role=administrator
   ";
   exit;
 }
@@ -94,7 +95,7 @@ if (isset($adduser)) {
     info("User $username already exists");
     exit;
   }
-  
+
   $user_id = wp_create_user( $username, $password );
   if (is_wp_error($user_id)) {
     info("User creation error: " . $user_id->get_error_message());
