@@ -35,6 +35,7 @@ if (isset($help)) {
       --email     Optional email address
       --role      Optional role name, eg. e.g. subscriber (default), administrator
     --report    Dump of all constatns and selected variables extracted from config file
+                plus some selected options extracted from database
 
   Examples:
 
@@ -72,21 +73,67 @@ if (isset($report)) {
     if (isset($$variable)) {
       $value = $$variable;
       if ($value === false) $value = 'false';
-      if ($value === '') $value = '\'\'';
       if ($value === null) $value = 'NULL';
-      info("\$$variable = $value");
+      if ($value === '') {
+        info("\$$variable is an empty string");
+      } else {
+        info("\$$variable = $value");
+      }
     }
   }
 
   foreach ($constants['user'] as $constant => $value) {
     if ($value === false) $value = 'false';
-    if ($value === '') $value = '\'\'';
     if ($value === null) $value = 'NULL';
-    info("$constant = $value");
+    if ($value === '') {
+      info("$constant is an empty string");
+    } else {
+      info("$constant = $value");
+    }
   }
 
   if (isset($wpdb)) {
-    info("Can use \$wpdb to access database");
+    info("Can use \$wpdb to access database", ['prefix' => "\n" ]);
+  }
+
+  info("Retrieving selected options from database...");
+
+  $wp_options = [
+    'siteurl',
+    'home',
+    'blogname',
+    'blogdescription',
+    'users_can_register',
+    'admin_email',
+    'mailserver_url',
+    'mailserver_login',
+    'mailserver_pass',
+    'mailserver_port',
+    'blog_charset',
+    'active_plugins',
+    'template',
+    'stylesheet',
+    'html_type',
+    'default_role',
+    'initial_db_version',
+    'db_version',
+    'uploads_use_yearmonth_folders',
+    'upload_path',
+    'blog_public',
+    'timezone_string',
+    'WPLANG',
+  ];
+
+  foreach ($wp_options as $wp_option) {
+    $value = get_option($wp_option, null);
+    if (is_array($value)) $value = json_encode($value);
+    if ($value === null) {
+      info("$wp_option does not exist");
+    } else if ($value === '') {
+      info("$wp_option is an empty string");
+    } else {
+      info("$wp_option = $value");
+    }
   }
 }
 

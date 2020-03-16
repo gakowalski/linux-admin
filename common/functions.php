@@ -10,9 +10,10 @@ function info($msg, $options = []) {
   global $info_counter;
 
   $options = prepare_options($options, [
+    'prefix' => '',
     'suffix' => "\n",
   ]);
 
-  echo "[$info_counter] → $msg" . $options['suffix'];
+  echo $options['prefix'] . "[$info_counter] → $msg" . $options['suffix'];
   return ++$info_counter;
 }
