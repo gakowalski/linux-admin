@@ -3,6 +3,8 @@
 // do not modify
 $line_check = __LINE__;
 
+require 'common/functions.php';
+
 // inspiration:
 // https://www.cyberciti.biz/faq/linux-unix-apache-lighttpd-phpini-disable-functions/
 // https://www.cyberciti.biz/tips/php-security-best-practices-tutorial.html
@@ -43,23 +45,7 @@ $functions_to_be_disabled = array(
   'show_source',
 );
 
-$info_counter = 0;
 $ini_local_copy = [];
-
-function prepare_options($options, $default_options) {
-  return array_merge($default_options, $options);
-}
-
-function info($msg, $options = []) {
-  global $info_counter;
-
-  $options = prepare_options($options, [
-    'suffix' => "\n",
-  ]);
-
-  echo "[$info_counter] → $msg" . $options['suffix'];
-  return ++$info_counter;
-}
 
 function warning($key, $value, $message) {
   if ($value === '') $value = 'an empty string';
