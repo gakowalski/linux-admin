@@ -12,6 +12,7 @@ extract(prepare_options(getopt('', [
   'email:',
   'role:',
   'report',
+  'advice',
 ]), [
   'dir' => '.',
   'config' => 'wp-config.php',
@@ -36,6 +37,7 @@ if (isset($help)) {
       --role      Optional role name, eg. e.g. subscriber (default), administrator
     --report    Dump of all constatns and selected variables extracted from config file
                 plus some selected options extracted from database
+    --advice    Check settings and give advice
 
   Examples:
 
@@ -154,5 +156,11 @@ if (isset($adduser)) {
     $user->remove_role('subscriber');
     $user->add_role($role);
     info("User role changed to: $role");
+  }
+}
+
+if (isset($advice)) {
+  if ($constants['user']['DB_USER'] == 'root') {
+    info('DB_USER is root, consider creating database user with priviledges limited to the wordpress tables only');
   }
 }
