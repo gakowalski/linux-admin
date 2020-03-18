@@ -74,6 +74,12 @@ Syntax OK
 sudo curl -sL https://raw.githubusercontent.com/richardforth/apache2buddy/master/apache2buddy.pl | perl
 ```
 
+# NGinx
+
+## gixy
+
+* URL: https://github.com/yandex/gixy
+
 # MySQL / MariaDB
 
 ## mysqltuner.pl
@@ -87,7 +93,25 @@ wget https://raw.githubusercontent.com/major/MySQLTuner-perl/master/vulnerabilit
 perl mysqltuner.pl
 ```
 
+# PostgreSQL
+
+# postgresqltuner
+
+* URL: https://github.com/jfcoz/postgresqltuner
+
+```
+wget -O postgresqltuner.pl https://postgresqltuner.pl
+perl postgresqltuner.pl
+```
+
 # docker
+
+## official check-config utility
+
+```
+curl https://raw.githubusercontent.com/docker/docker/master/contrib/check-config.sh > check-config.sh
+bash check-config.sh
+```
 
 ## docker-bench-security
 
