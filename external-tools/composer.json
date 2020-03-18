@@ -1,0 +1,14 @@
+{
+    "name": "gakowalski/gk-tools",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Grzegorz Adam Kowalski",
+            "email": "grzegorz.adam.kowalski@outlook.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "vimeo/psalm": "^3.0@dev"
+    }
+}

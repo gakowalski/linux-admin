@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<psalm>
+  <projectFiles>
+    <file name="php-config-check.php" />
+    <file name="wordpress-admin.php" />
+  </projectFiles>
+</psalm>
