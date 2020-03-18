@@ -1,0 +1,6 @@
+[submodule "external-tools/apache2buddy"]
+	path = external-tools/apache2buddy
+	url = https://github.com/richardforth/apache2buddy
+[submodule "external-tools/MySQLTuner-perl"]
+	path = external-tools/MySQLTuner-perl
+	url = https://github.com/major/MySQLTuner-perl
