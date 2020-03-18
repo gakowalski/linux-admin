@@ -47,15 +47,18 @@ $functions_to_be_disabled = array(
 
 $ini_local_copy = [];
 
-function warning($key, $value, $message) {
+function warning($key, $value, $message):void {
   if ($value === '') $value = 'an empty string';
   info("$key is $value - WARNING, $message");
 }
-function advice($key, $value, $new_value) {
+function advice($key, $value, $new_value):void {
   warning($key, $value, "should be '$new_value'!");
 }
 
 // taken from on: https://stackoverflow.com/a/22500394/925196
+/**
+ * @return false|int|string
+ */
 function size_to_bytes($size)
 {
     $suffix = strtoupper(substr($size, -1));
@@ -73,6 +76,9 @@ function size_to_bytes($size)
     return $value;
 }
 
+/**
+ * @return false|string
+ */
 function check_ini_key($key) {
   global $ini_local_copy;
 
@@ -97,7 +103,7 @@ function check_ini_key($key) {
   return $runtime_value;
 }
 
-function check_ini_value($key, $value) {
+function check_ini_value($key, $value): void {
   if ($value === '') {
     switch ($key) {
       case 'user_dir':
@@ -205,7 +211,7 @@ function check_ini_value($key, $value) {
   }
 }
 
-function check_path($path, $options = []) {
+function check_path($path, $options = []): bool {
   $options = prepare_options($options, [
     'writable'  =>  true,
     'readable'  =>  true,
@@ -232,7 +238,7 @@ function check_path($path, $options = []) {
   return true;
 }
 
-function check_path_collection($path_collection, $options = []) {
+function check_path_collection($path_collection, $options = []): bool {
   $array = explode(PATH_SEPARATOR, $path_collection);
   foreach ($array as $path_root) {
     if (check_path($path_root, $options) === false) return false;;
@@ -240,6 +246,9 @@ function check_path_collection($path_collection, $options = []) {
   return true;
 }
 
+/**
+ * @return false|string
+ */
 function in_path_collection($single_path, $path_collection) {
   $array = explode(PATH_SEPARATOR, $path_collection);
   $single_path = realpath($single_path);
