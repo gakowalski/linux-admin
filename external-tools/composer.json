@@ -9,6 +9,7 @@
     ],
     "minimum-stability": "dev",
     "require": {
-        "vimeo/psalm": "^3.0@dev"
+        "vimeo/psalm": "^3.0@dev",
+        "designsecurity/progpilot": "dev-master"
     }
 }

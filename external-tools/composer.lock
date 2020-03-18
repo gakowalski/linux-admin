@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d73ba7d6f9a44cc75a58399472685f70",
+    "content-hash": "a5f15acae2f405bdc9ffac350e12627a",
     "packages": [
         {
             "name": "amphp/amp",
@@ -264,6 +264,52 @@
             "time": "2020-03-01T12:26:26+00:00"
         },
         {
+            "name": "designsecurity/progpilot",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/designsecurity/progpilot.git",
+                "reference": "abe1de2f0bbdd21d80197711cad91e2c9fef952b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/designsecurity/progpilot/zipball/abe1de2f0bbdd21d80197711cad91e2c9fef952b",
+                "reference": "abe1de2f0bbdd21d80197711cad91e2c9fef952b",
+                "shasum": ""
+            },
+            "require": {
+                "ircmaxell/php-cfg": "^0.5",
+                "php": "^7.0",
+                "symfony/console": ">=3.3.5",
+                "symfony/yaml": ">=3.3.6"
+            },
+            "require-dev": {
+                "phpro/grumphp": "^0.18.0",
+                "phpunit/phpunit": "^6.0"
+            },
+            "bin": [
+                "projects/phar/progpilot"
+            ],
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "progpilot": "package/src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Eric Therond",
+                    "email": "eric.therond.fr@gmail.com"
+                }
+            ],
+            "description": "A Static Analyser for security",
+            "time": "2020-02-27T20:21:26+00:00"
+        },
+        {
             "name": "felixfbecker/advanced-json-rpc",
             "version": "v3.1.1",
             "source": {
@@ -350,6 +396,48 @@
                 "server"
             ],
             "time": "2019-06-23T21:03:50+00:00"
+        },
+        {
+            "name": "ircmaxell/php-cfg",
+            "version": "v0.5.x-dev",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ircmaxell/php-cfg.git",
+                "reference": "4476ba9d832be2af0322166e531b8d78562af8d7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ircmaxell/php-cfg/zipball/4476ba9d832be2af0322166e531b8d78562af8d7",
+                "reference": "4476ba9d832be2af0322166e531b8d78562af8d7",
+                "shasum": ""
+            },
+            "require": {
+                "nikic/php-parser": "^4.0",
+                "php": "^7.0",
+                "phpdocumentor/graphviz": "^1.0.4"
+            },
+            "require-dev": {
+                "fabpot/php-cs-fixer": "1.*",
+                "phpunit/phpunit": "^4.7"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PHPCfg\\": "lib/PHPCfg/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD"
+            ],
+            "authors": [
+                {
+                    "name": "Anthony Ferrara",
+                    "email": "ircmaxell@gmail.com"
+                }
+            ],
+            "description": "A Control Flow Graph implementation for PHP",
+            "time": "2019-02-23T22:06:54+00:00"
         },
         {
             "name": "netresearch/jsonmapper",
@@ -558,6 +646,47 @@
                 "xml conversion"
             ],
             "time": "2019-03-29T20:06:56+00:00"
+        },
+        {
+            "name": "phpdocumentor/graphviz",
+            "version": "1.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/phpDocumentor/GraphViz.git",
+                "reference": "a906a90a9f230535f25ea31caf81b2323956283f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/phpDocumentor/GraphViz/zipball/a906a90a9f230535f25ea31caf81b2323956283f",
+                "reference": "a906a90a9f230535f25ea31caf81b2323956283f",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "phpDocumentor": [
+                        "src/",
+                        "tests/unit"
+                    ]
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Mike van Riel",
+                    "email": "mike.vanriel@naenius.com"
+                }
+            ],
+            "time": "2016-02-02T13:00:08+00:00"
         },
         {
             "name": "phpdocumentor/reflection-common",
@@ -960,6 +1089,52 @@
                 }
             ],
             "time": "2020-03-16T16:46:21+00:00"
+        },
+        {
+            "name": "symfony/deprecation-contracts",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/deprecation-contracts.git",
+                "reference": "ede224dcbc36138943a296107db2b8b2a690ac1c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/deprecation-contracts/zipball/ede224dcbc36138943a296107db2b8b2a690ac1c",
+                "reference": "ede224dcbc36138943a296107db2b8b2a690ac1c",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.1"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.1-dev"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "function.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "A generic function and convention to trigger deprecation notices",
+            "homepage": "https://symfony.com",
+            "time": "2020-02-14T07:31:56+00:00"
         },
         {
             "name": "symfony/polyfill-ctype",
@@ -1520,6 +1695,83 @@
             "time": "2020-03-16T17:33:00+00:00"
         },
         {
+            "name": "symfony/yaml",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/yaml.git",
+                "reference": "bfce19db74f33b4b4c0aa732008bdaf58c2727c2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/bfce19db74f33b4b4c0aa732008bdaf58c2727c2",
+                "reference": "bfce19db74f33b4b4c0aa732008bdaf58c2727c2",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.2.5",
+                "symfony/deprecation-contracts": "^2.1",
+                "symfony/polyfill-ctype": "~1.8"
+            },
+            "conflict": {
+                "symfony/console": "<4.4"
+            },
+            "require-dev": {
+                "symfony/console": "^4.4|^5.0"
+            },
+            "suggest": {
+                "symfony/console": "For validating YAML files using the lint command"
+            },
+            "bin": [
+                "Resources/bin/yaml-lint"
+            ],
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "5.1-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Yaml\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony Yaml Component",
+            "homepage": "https://symfony.com",
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2020-03-16T13:12:54+00:00"
+        },
+        {
             "name": "vimeo/psalm",
             "version": "dev-master",
             "source": {
@@ -1761,7 +2013,8 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "vimeo/psalm": 20
+        "vimeo/psalm": 20,
+        "designsecurity/progpilot": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

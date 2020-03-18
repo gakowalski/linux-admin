@@ -1,0 +1,33 @@
+inputs:
+    setDev: false
+    setLanguages:
+        - php
+    setFrameworks: ~
+    setSources: ~
+    setSinks: ~
+    setValidators: ~
+    setSanitizers: ~
+    setCustomRules: ~
+    setIncludes: ~
+    setExcludes: ~
+    setFolder: ~
+    setFile: ~
+    setCode: ~
+    setResolvedIncludes: ~
+    setFalsePositives: ~
+
+outputs:
+    taintedFlow: false
+    resolveIncludes: false
+    resolveIncludesFile: ~
+
+options:
+    setAnalyzeIncludes: true
+    setAnalyzeFunctions: true
+    setAnalyzeHardRules: true
+    setPrintFile: true
+    setPrintWarning: false
+    setPrettyPrint: true
+    setLimitTime: 10
+    setLimitDefs: 3000
+    setLimitSize: 500000
