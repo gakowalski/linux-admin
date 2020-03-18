@@ -87,6 +87,17 @@ wget https://raw.githubusercontent.com/major/MySQLTuner-perl/master/vulnerabilit
 perl mysqltuner.pl
 ```
 
+# PostgreSQL
+
+# postgresqltuner
+
+* URL: https://github.com/jfcoz/postgresqltuner
+
+```
+wget -O postgresqltuner.pl https://postgresqltuner.pl
+perl postgresqltuner.pl
+```
+
 # docker
 
 ## docker-bench-security

@@ -4,3 +4,6 @@
 [submodule "external-tools/MySQLTuner-perl"]
 	path = external-tools/MySQLTuner-perl
 	url = https://github.com/major/MySQLTuner-perl
+[submodule "external-tools/postgresqltuner"]
+	path = external-tools/postgresqltuner
+	url = https://github.com/jfcoz/postgresqltuner
