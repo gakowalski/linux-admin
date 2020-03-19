@@ -183,8 +183,11 @@ if (isset($connect)) {
       "$mysql --version",
       "$mysqladmin --version",
       "$mysqldump --version",
+      "$mysqladmin_cmd ping",
       "$mysqladmin_cmd version",
       "$mysqladmin_cmd status",
+      "$mysqladmin_cmd extended-status",
+      "$mysqladmin_cmd processlist",
     ]);
   } else {
     info("Unknown client $client");
