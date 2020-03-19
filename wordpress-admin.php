@@ -28,7 +28,7 @@ if (isset($help)) {
   Possible options:
 
     --help      This screen.
-    --dir       Path to wordpress directory
+    --dir       Path to Wordpress directory
     --config    Name of config file ('wp-config.php' by default)
     --adduser   Add user, use sub-options
       --username  Required unique username

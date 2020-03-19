@@ -19,8 +19,8 @@ if (isset($help)) {
   Possible options:
 
     --help      This screen.
-    --dir       Path to wordpress directory
-    --config    Name of config file ('wp-config.php' by default)
+    --dir       Path to Joomla directory
+    --config    Name of config file ('configuration.php' by default)
     --report    Dump of all constatns and selected variables extracted from config file
                 plus some selected options extracted from database
   ";
@@ -50,4 +50,3 @@ if (isset($report)) {
     }
   }
 }
-
