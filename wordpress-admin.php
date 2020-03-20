@@ -54,17 +54,19 @@ if (isset($help)) {
   exit;
 }
 
-$dir = rtrim($dir, '/');
-$config_file = realpath("$dir/$config");
+if (false === isset($find)) {
+  $dir = rtrim($dir, '/');
+  $config_file = realpath("$dir/$config");
 
-if ($config_file === false && file_exists($config_file) === false) {
-  info("Config file $config_file does not exist");
-  exit;
+  if ($config_file === false && file_exists($config_file) === false) {
+    info("Config file $config_file does not exist");
+    exit;
+  }
+
+  include "$config_file";
+
+  $constants = get_defined_constants(true);
 }
-
-include "$config_file";
-
-$constants = get_defined_constants(true);
 
 if (isset($report)) {
   $variables = [
