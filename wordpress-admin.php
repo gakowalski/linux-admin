@@ -219,7 +219,7 @@ if (isset($find)) {
 
   if (posix_getuid() == 0){
     info("Running as root user");
-    $cmds[] = 'dnf install mlocate --yes';
+    $cmds[] = 'dnf install mlocate -y || yum install mlocate -y';
     $cmds[] = 'updatedb';
   } else {
     info("Running as non-root user - results may be incomplete!");
