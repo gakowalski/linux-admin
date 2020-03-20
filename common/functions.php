@@ -43,7 +43,7 @@ function info($msg, $options = []) {
   }
 
   echo $options['prefix']
-    . "[$info_counter] → "
+    . "$info_counter → "
     . ($options['autoindent'] ? str_repeat("\t", $info_indent_level) : $options['indent'])
     . $msg
     . $options['suffix'];
@@ -68,6 +68,8 @@ function execute($array_of_commands, $options = []) {
   ];
 
   $options = array_merge($default_options, $options);
+
+  if (is_array($array_of_commands) === false) $array_of_commands = [$array_of_commands];
 
   foreach ($array_of_commands as $command) {
     $output = [];
