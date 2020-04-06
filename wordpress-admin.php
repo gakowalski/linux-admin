@@ -13,7 +13,7 @@ extract(prepare_options(getopt('', [
   'role:',
   'report',
   'advice',
-  'backup',
+  'backup::',
   'mysqldump:',
   'find'
 ]), [
@@ -39,7 +39,7 @@ if (isset($help)) {
       --password=   Optional password (if not supplied, will be randomly generated)
       --email=      Optional email address
       --role=       Optional role name, eg. e.g. subscriber (default), administrator
-    --backup        Dump database and ZIP or TAR.GZ files
+    --backup=        Backup 'db', 'files' or 'both' (default)
       --mysqldump=  Path to mysqldump (if this utility is not in PATH)
     --report    Dump of all constatns and selected variables extracted from config file
                 plus some selected options extracted from database
@@ -53,6 +53,8 @@ if (isset($help)) {
   ";
   exit;
 }
+
+$operating_system = get_operating_system();
 
 if (false === isset($find)) {
   $dir = rtrim($dir, '/');
@@ -175,7 +177,7 @@ if (isset($advice)) {
 }
 
 if (isset($backup)) {
-  info('Starting site backup');
+  info('Starting backup of ' . ($backup == 'both' ? 'files and db' : $backup));
 
   $host = DB_HOST;
   $user = DB_USER;
@@ -183,28 +185,52 @@ if (isset($backup)) {
   $database = DB_NAME;
   $dump = 'wp-' . $database . '-' . DB_HOST . '-' . date('Y-m-d-') . time();
   $db_dump = "$dump.sql";
+  $db_log = "$dump.log";
 
-  execute("$mysqldump --host=$host --user=$user --password=$password $database > $db_dump");
-  if (realpath($db_dump)) {
-    info("Database backup complete: " . realpath($db_dump));
-  } else {
-    failure("Database backup failure");
+  // DATABASE BACKUP
+  if ($backup != 'files') {
+    $cmds = [];
+    $cmds[] = "$mysqldump --host=$host --user=$user --password=$password --log-error=$db_log --single-transaction --extended-insert $database > $db_dump";
+
+    info("Operating system: $operating_system");
+
+    if ($operating_system == "Windows") {
+      $cmds[] = "powershell Compress-Archive $db_dump $db_dump.zip";
+      $cmds[] = "del $db_dump";
+
+      $db_dump = "$db_dump.zip";
+    } else if ($operating_system == "Linux") {
+      if (posix_getuid() == 0){
+        $cmds[] = 'dnf install pv -y || yum install pv -y';
+      }
+      $cmds[] = "pv $db_dump | gzip -c -v > $db_dump.gz || gzip -v $db_dump";
+      $db_dump = "$db_dump.gz";
+    }
+    execute($cmds);
+
+    if (realpath($db_dump)) {
+      info("Database backup complete: " . realpath($db_dump));
+      info("Log file created: " . realpath($db_log));
+    } else {
+      failure("Database backup failure");
+    }
   }
 
-  $operating_system = get_operating_system();
+  // FILES BACKUP
+  if ($backup != 'db') {
+    if ($operating_system == "Windows") {
+      $file_dump = "$dump.zip";
+      execute("powershell Compress-Archive $dir $file_dump");
+    } else if ($operating_system == "Linux") {
+      $file_dump = "$dump.tar.gz";
+      execute("tar -zcvf $file_dump $dir");
+    }
 
-  if ($operating_system == "Windows") {
-    $file_dump = "$dump.zip";
-    execute("powershell Compress-Archive $dir $file_dump");
-  } else if ($operating_system == "Linux") {
-    $file_dump = "$dump.tar.gz";
-    execute("tar -zcvf $file_dump $dir");
-  }
-
-  if (realpath($file_dump)) {
-    info("File backup complete: " . realpath($file_dump));
-  } else {
-    failure("File backup failure");
+    if (realpath($file_dump)) {
+      info("File backup complete: " . realpath($file_dump));
+    } else {
+      failure("File backup failure");
+    }
   }
 
   info('Site backup complete');
