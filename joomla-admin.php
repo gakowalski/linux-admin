@@ -88,5 +88,11 @@ if (isset($report)) {
 }
 
 if (isset($users)) {
-
+  $db = JFactory::getDBO();
+  $db->setQuery('SELECT id, username, usertype FROM ' . $db->quoteName ('#__users') . ' ORDER BY usertype, username ASC');
+  $rows = $db->loadAssocList();
+  echo "id|username|usertype\n";
+  foreach ($rows as $row) {
+    echo implode('|', $row);
+  }
 }
