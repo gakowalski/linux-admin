@@ -21,12 +21,16 @@ else
 fi
 
 # replace yum with dnf
-# dnf is better (safer) at checking dependencies
+# dnf is better (safer) at checking dependenciesexi
 sudo yum install dnf
 
 # some speedup
-echo 'max_parallel_downloads=10' | sudo tee -a /etc/dnf/dnf.conf
-echo 'fastestmirror=True' | sudo tee -a /etc/dnf/dnf.conf
+FILE=/etc/dnf/dnf.conf
+if test -f $FILE
+then
+  cat $FILE | grep max_parallel_downloads && echo 'max_parallel_downloads=10' | sudo tee -a $FILE
+  cat $FILE | grep fastestmirror && echo 'fastestmirror=True' | sudo tee -a $FILE
+fi
 
 # refresh packages to update
 sudo dnf list updates
@@ -38,7 +42,10 @@ sudo dnf update
 sudo dnf install ncdu
 sudo dnf install mlocate && sudo updatedb
 
-read -p "Install docker? " -n 1 -r
+# download recomennded scripts
+test ! -f certbot-auto && wget https://dl.eff.org/certbot-auto
+
+read -p "Install docker? [y/N]" -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
