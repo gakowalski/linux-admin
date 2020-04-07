@@ -25,7 +25,7 @@ extract(prepare_options(getopt('', [
   'mysqldump' => 'mysqldump',
 ]));
 
-if (isset($help)) {
+if ($argc == 1 || isset($help)) {
   $me = basename(__FILE__);
   echo "\n\tphp $me [OPTIONS]
 
@@ -41,7 +41,7 @@ if (isset($help)) {
       --role=       Optional role name, eg. e.g. subscriber (default), administrator
     --backup=        Backup 'db', 'files' or 'both' (default)
       --mysqldump=  Path to mysqldump (if this utility is not in PATH)
-    --report    Dump of all constatns and selected variables extracted from config file
+    --report    Dump of all constants and selected variables extracted from config file
                 plus some selected options extracted from database
     --advice    Check settings and give advice
     --find      Try to locate wordpress instances
