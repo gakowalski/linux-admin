@@ -1,5 +1,24 @@
 #!/bin/sh
-git clone --recurse-submodules https://github.com/gakowalski/linux-admin
+
+info() {
+  echo "$LINENO: $1"
+}
+failure() {
+  echo "Failure: $1"
+  exit 1
+}
+
+FILE=linux-admin
+URL=https://github.com/gakowalski/linux-admin
+
+if test -f $FILE
+then
+  cd $FILE
+  git pull --recurse-submodules
+  cd ..
+else
+  git clone --recurse-submodules $URL
+fi
 
 # replace yum with dnf
 # dnf is better (safer) at checking dependencies
