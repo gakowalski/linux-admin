@@ -5,6 +5,8 @@ require 'common/functions.php';
 extract(prepare_options(getopt('', [
   'help',
   'report',
+  'enable:',
+  'disable:',
 ]), [
 
 ]));
@@ -16,12 +18,15 @@ if ($argc == 1 || isset($help)) {
   Possible options:
 
     --help        This screen.
+    --enable=
+    --disable=
+      sudo-without-password
     --report
   ";
   exit;
 }
 
-$username = `whoami`;
+$username = trim(`whoami`);
 info("Running as user $username");
 
 if (posix_getuid() == 0){
@@ -32,4 +37,30 @@ if (posix_getuid() == 0){
 
 if ($report) {
 
+}
+
+if ($enable) {
+  switch ($enable) {
+    case 'sudo-without-password':
+      $file = "/etc/sudoers.d/$username-no-password-rule";
+      if (false === file_put_contents($file, "$username ALL=(ALL) NOPASSWD:ALL")) {
+        failure("Can't write to $file");
+      } else {
+        info("Special rules written to $file - now sudo will work without password");
+      }
+      break;
+    default:
+      info("Unknown option $enable - can't be enabled");
+  }
+}
+
+if ($disable) {
+  switch ($disable) {
+    case 'sudo-without-password':
+      $file = "/etc/sudoers.d/$username-no-password-rule";
+      `rm $file`;
+      break;
+    default:
+      info("Unknown option $enable - can't be enabled");
+  }
 }
