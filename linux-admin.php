@@ -4,6 +4,7 @@ require 'common/functions.php';
 
 extract(prepare_options(getopt('', [
   'help',
+  'report',
 ]), [
 
 ]));
@@ -15,7 +16,7 @@ if ($argc == 1 || isset($help)) {
   Possible options:
 
     --help        This screen.
-    --
+    --report
   ";
   exit;
 }
@@ -27,4 +28,8 @@ if (posix_getuid() == 0){
   info("Running with root privileges");
 } else {
   failure("Running without root privileges");
+}
+
+if ($report) {
+
 }
