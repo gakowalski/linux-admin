@@ -5,7 +5,7 @@ require 'common/functions.php';
 extract(prepare_options(getopt('', [
   'help',
   'report',
-  'user',
+  'user:',
   'enable:',
   'disable:',
 ]), [
