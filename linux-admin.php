@@ -46,7 +46,8 @@ if (isset($enable)) {
       if (false === isset($user)) {
         failure("No target user set");
       }
-      $file = "/etc/sudoers.d/$user-no-password-rule";
+      $user_md5 = md5($user); //< rule files can't contain special characters
+      $file = "/etc/sudoers.d/$user_md5-no-password-rule";
       if (false === file_put_contents($file, "$user ALL=(ALL) NOPASSWD:ALL")) {
         failure("Can't write to $file");
       } else {
@@ -64,7 +65,8 @@ if (isset($disable)) {
       if (false === isset($user)) {
         failure("No target user set");
       }
-      $file = "/etc/sudoers.d/$user-no-password-rule";
+      $user_md5 = md5($user); //< rule files can't contain special characters
+      $file = "/etc/sudoers.d/$user_md5-no-password-rule";
       if (false === unlink($file)) {
         failure("Can't remove $file");
       } else {
