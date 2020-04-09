@@ -35,11 +35,11 @@ if (posix_getuid() == 0){
   failure("Running without root privileges");
 }
 
-if ($report) {
+if (isset($report)) {
 
 }
 
-if ($enable) {
+if (isset($enable)) {
   switch ($enable) {
     case 'sudo-without-password':
       $file = "/etc/sudoers.d/$username-no-password-rule";
@@ -54,7 +54,7 @@ if ($enable) {
   }
 }
 
-if ($disable) {
+if (isset($disable)) {
   switch ($disable) {
     case 'sudo-without-password':
       $file = "/etc/sudoers.d/$username-no-password-rule";
