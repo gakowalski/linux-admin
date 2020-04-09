@@ -5,6 +5,7 @@ require 'common/functions.php';
 extract(prepare_options(getopt('', [
   'help',
   'report',
+  'user',
   'enable:',
   'disable:',
 ]), [
@@ -18,6 +19,7 @@ if ($argc == 1 || isset($help)) {
   Possible options:
 
     --help        This screen.
+    --user=       Set target user (if applicable)
     --enable=
     --disable=
       sudo-without-password
@@ -26,8 +28,7 @@ if ($argc == 1 || isset($help)) {
   exit;
 }
 
-$username = trim(`whoami`);
-info("Running as user $username");
+info("Running as user " . trim(`whoami`));
 
 if (posix_getuid() == 0){
   info("Running with root privileges");
@@ -42,8 +43,11 @@ if (isset($report)) {
 if (isset($enable)) {
   switch ($enable) {
     case 'sudo-without-password':
-      $file = "/etc/sudoers.d/$username-no-password-rule";
-      if (false === file_put_contents($file, "$username ALL=(ALL) NOPASSWD:ALL")) {
+      if (false === isset($user)) {
+        failure("No target user set");
+      }
+      $file = "/etc/sudoers.d/$user-no-password-rule";
+      if (false === file_put_contents($file, "$user ALL=(ALL) NOPASSWD:ALL")) {
         failure("Can't write to $file");
       } else {
         info("Special rules written to $file - now sudo will work without password");
@@ -57,10 +61,17 @@ if (isset($enable)) {
 if (isset($disable)) {
   switch ($disable) {
     case 'sudo-without-password':
-      $file = "/etc/sudoers.d/$username-no-password-rule";
-      `rm $file`;
+      if (false === isset($user)) {
+        failure("No target user set");
+      }
+      $file = "/etc/sudoers.d/$user-no-password-rule";
+      if (false === unlink($file)) {
+        failure("Can't remove $file");
+      } else {
+        info("Remoed special rules file $file");
+      }
       break;
     default:
-      info("Unknown option $enable - can't be enabled");
+      info("Unknown option $disable - can't be enabled");
   }
 }
