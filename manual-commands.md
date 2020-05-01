@@ -13,6 +13,27 @@
 
 ## Centos 7
 
+### Universal monitoring tools
+
+#### Glances
+
+```
+sudo dnf install glances
+glances
+```
+
+Live view for:
+* CPU usage,
+* Memory usage,
+* Netowrk I/O,
+* Disk I/O,
+* File system stats (simple),
+* Processes (sorted by highest usage),
+* Warnings and critical alerts,
+* and more... (plugins for docker etc.)
+
+Also, can be run in webserver mode.
+
 ### Hostname, Linux version, Kernel version, CPU architecture
 
 ```
@@ -53,6 +74,13 @@ $ df -h --total -x tmpfs -x devtmpfs | grep -e Size -e total
 
 Filesystem               Size  Used Avail Use% Mounted on
 total                    109G   35G   75G  32% -
+```
+
+### Network usage
+
+```
+sudo dnf install iftop
+iftop
 ```
 
 ### Analyzing folder size
