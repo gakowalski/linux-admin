@@ -101,7 +101,7 @@ fi
 # install recommended tools
 ncdu --version || sudo dnf install ncdu -y
 locate --version || { sudo dnf install mlocate -y && sudo updatedb; }
-iftop -h || sudo dnf install iftop -y
+iftop -h | grep version || sudo dnf install iftop -y
 
 python2 --version || sudo dnf install python2 -y
 python3 --version || sudo dnf install python3 python3-devel -y
@@ -124,7 +124,8 @@ fi
 sudo dnf install wget  -y
 test ! -f certbot-auto && wget https://dl.eff.org/certbot-auto
 
-if docker --version
+docker --version
+if [ $? -eq 0 ]
 then
   echo docker already installed, doing nothing.
 else
@@ -149,7 +150,8 @@ else
   fi
 fi
 
-if mysql --version
+mysql --version
+if [ $? -eq 0 ]
 then
   echo mysql or MariaDB installed, doing nothing.
 else
