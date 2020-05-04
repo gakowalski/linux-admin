@@ -64,7 +64,7 @@ if (isset($backup)) {
   $host = $config_array['DB_HOST'];
   $user = $config_array['DB_USERNAME'];
   $password = $config_array['DB_PASSWORD'];
-  $database = $config_array['DB_USERNAME'];
+  $database = $config_array['DB_DATABASE'];
   $dump = "laravel-$database-$host-" . date('Y-m-d-') . time();
   $db_dump = "$dump.sql";
   $db_log = "$dump.log";
