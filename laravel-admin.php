@@ -26,7 +26,7 @@ if ($argc == 1 || isset($help)) {
       --mysqldump=  Path to mysqldump (if this utility is not in PATH)
     --report    Dump of all constants and selected variables extracted from config file
                 plus some selected options extracted from database
-    --find      Try to locate wordpress instances
+    --find      Try to locate Laravel instances
   ";
   exit;
 }

@@ -13,6 +13,7 @@ function prepare_options($options, $default_options) {
 function info($msg, $options = []) {
   global $info_counter;
   global $info_indent_level;
+  global $info_last_mgs;
 
   $options = prepare_options($options, [
     'prefix' => '',
@@ -42,13 +43,22 @@ function info($msg, $options = []) {
     return $info_counter;
   }
 
-  echo $options['prefix']
+  $final_message = $options['prefix']
     . "$info_counter → "
     . ($options['autoindent'] ? str_repeat("\t", $info_indent_level) : $options['indent'])
     . $msg
     . $options['suffix'];
 
+  echo $final_message;
+
+  $info_last_mgs = $final_message;
+
   return ++$info_counter;
+}
+
+function info_append($msg, $options = []) {
+  global $info_last_mgs;
+  return info("$info_last_mgs$msg", $options);
 }
 
 function failure($msg = null) {
@@ -57,6 +67,44 @@ function failure($msg = null) {
     info("FAILURE: " . $msg);
   }
   exit(EXIT_FAILURE);
+}
+
+function string_to_value($text) {
+    $i = strtolower(trim($text));
+    if (is_numeric($i)) return strpos($i, '.') ? (float) $i : (int) $i;
+    else if (in_array($i, ['true', 'false'])) return ($i == 'true');
+    else if ($i == 'null') return null;
+    else if ($i == '\n') return "\n";
+    else if ($i == '\t') return "\t";
+    else if (substr($i, 0, 4) == 'eval') return eval('return ' . substr($i, 5) . ';');
+    return $text;
+}
+
+function string_to_array($text, $options = []) {
+  $default_options = [];
+  $options = array_merge($default_options, $options);
+
+  $result = [];
+
+  $lines = preg_split(
+    '/[,;|]*[\r\n]+[\t]*/',
+    $text,
+    -1,
+    PREG_SPLIT_NO_EMPTY
+  );
+
+  foreach ($lines as $line) {
+    if (substr($line, 0, 1) == '#') continue;
+    if (substr($line, 0, 2) == '//') continue;
+    if (strpos($line, '=')) {
+        list($key, $value) = preg_split('/[\s]*=[\s]*+/', $line);
+        $result[$key] = string_to_value($value);
+    } else {
+        $result[] = string_to_value($line);
+    }
+  }
+
+  return $result;
 }
 
 function execute($array_of_commands, $options = []) {
