@@ -1,13 +1,5 @@
 #!/bin/sh
 
-info() {
-  echo "$LINENO: $1"
-}
-failure() {
-  echo "Failure: $1"
-  exit 1
-}
-
 # replace yum with dnf
 # dnf is better (safer) at checking dependenciesexi
 dnf --version || sudo yum install dnf -y
@@ -23,7 +15,8 @@ then
   cd ..
 else
   if test -f $FILE
-    failure will not overwrite $FILE , try installing to another folder 
+    echo will not overwrite $FILE, try installing to another folder
+    exit 127
   else
     git clone --recurse-submodules $URL
   fi
