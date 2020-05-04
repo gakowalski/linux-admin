@@ -136,7 +136,7 @@ else
     # install docker
     sudo dnf install device-mapper-persistent-data lvm2 -y
     sudo dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-    sudo dnf install docker-ce docker-ce-cli containerd.io -y
+    sudo dnf install docker-ce docker-ce-cli containerd.io -y --nobest
 
     # start now and test
     sudo systemctl start docker
@@ -160,7 +160,7 @@ else
   if [[ $REPLY =~ ^[Yy]$ ]]
   then
     sudo rpm --import https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
-    cp https://raw.githubusercontent.com/gakowalski/linux-admin/master/external-tools/yum.repos.d/mariadb.repo /etc/yum.repos.d/
+    cp linux-admin/master/external-tools/yum.repos.d/mariadb.repo /etc/yum.repos.d/
     sudo yum install MariaDB-server -y
   fi
 fi
