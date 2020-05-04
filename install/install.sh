@@ -52,7 +52,8 @@ fi
 sudo dnf install epel-release -y
 
 # for CentOS 8, recomennded in https://fedoraproject.org/wiki/EPEL
-sudo dnf config-manager --set-enabled PowerTools
+cat /etc/yum.repos.d/CentOS-PowerTools.repo | grep enabled=0 \
+  && sudo dnf config-manager --set-enabled PowerTools
 
 # based on https://rpms.remirepo.net/wizard/
 cat /etc/redhat-release | grep "CentOS Linux release 8" \
@@ -61,16 +62,16 @@ sudo dnf install yum-utils -y
 
 if php --version
 then
-
+  echo PHP already installed, doing nothing.
 else
   sudo dnf module reset php
-  sudo dnf module install php:remi-7.4
+  sudo dnf module install php:remi-7.4 -y
   # ^ this installs php php-cli, common, fpm, json, mbstring, xml
 
-  sudo dnf install httpd php-gd php-mysqlnd php-pdo php-soap php-xml php-intl
+  sudo dnf install httpd php-gd php-mysqlnd php-pdo php-soap php-xml php-intl -y
 
   # dependencies for composer
-  sudo dnf install php-zip php-json
+  sudo dnf install php-zip php-json -y
 fi
 
 if php --version
@@ -94,26 +95,26 @@ then
   sudo npm i -g npm
 else
   cat /etc/redhat-release | grep "CentOS Linux release 8" \
-    && sudo dnf module install nodejs:13/default
+    && sudo dnf module install nodejs:13/default -y
 fi
 
 # install recommended tools
-ncdu --version || sudo dnf install ncdu
-locate --version || { sudo dnf install mlocate && sudo updatedb; }
-iftop -h || sudo dnf install iftop
+ncdu --version || sudo dnf install ncdu -y
+locate --version || { sudo dnf install mlocate -y && sudo updatedb; }
+iftop -h || sudo dnf install iftop -y
 
-python2 --version || sudo dnf install python2
-python3 --version || sudo dnf install python3 python3-devel
+python2 --version || sudo dnf install python2 -y
+python3 --version || sudo dnf install python3 python3-devel -y
 
 if python3 --version
 then
   # sometimes needed for python packages (eg. glances)
-  cat /etc/redhat-release | grep "CentOS" && sudo dnf install redhat-rpm-config
-  sudo dnf install gcc
+  cat /etc/redhat-release | grep "CentOS" && sudo dnf install redhat-rpm-config -y
+  sudo dnf install gcc -y
 
   if glances --version
   then
-
+    echo glances already installed, doing nothing.
   else
     sudo pip3 install glances
   fi
@@ -125,15 +126,16 @@ test ! -f certbot-auto && wget https://dl.eff.org/certbot-auto
 
 if docker --version
 then
+  echo docker already installed, doing nothing.
 else
   read -p "Install docker? [y/N]" -n 1 -r
   echo
   if [[ $REPLY =~ ^[Yy]$ ]]
   then
     # install docker
-    sudo dnf install device-mapper-persistent-data lvm2
+    sudo dnf install device-mapper-persistent-data lvm2 -y
     sudo dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-    sudo dnf install docker-ce docker-ce-cli containerd.io
+    sudo dnf install docker-ce docker-ce-cli containerd.io -y
 
     # start now and test
     sudo systemctl start docker
@@ -149,6 +151,7 @@ fi
 
 if mysql --version
 then
+  echo mysql or MariaDB installed, doing nothing.
 else
   read -p "Install MariaDB? [y/N]" -n 1 -r
   echo
@@ -156,6 +159,6 @@ else
   then
     sudo rpm --import https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
     cp https://raw.githubusercontent.com/gakowalski/linux-admin/master/external-tools/yum.repos.d/mariadb.repo /etc/yum.repos.d/
-    sudo yum install MariaDB-server
+    sudo yum install MariaDB-server -y
   fi
 fi
