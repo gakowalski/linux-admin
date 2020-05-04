@@ -183,7 +183,7 @@ if (isset($backup)) {
   $user = DB_USER;
   $password = DB_PASSWORD;
   $database = DB_NAME;
-  $dump = 'wp-' . $database . '-' . DB_HOST . '-' . date('Y-m-d-') . time();
+  $dump = 'wp-' . $database . '-' . $host . '-' . date('Y-m-d-') . time();
   $db_dump = "$dump.sql";
   $db_log = "$dump.log";
 
@@ -218,7 +218,7 @@ if (isset($backup)) {
 
   // FILES BACKUP
   if ($backup != 'db') {
-    if ($operating_system == "Windows") {
+    if ($operating_system == 'Windows') {
       $file_dump = "$dump.zip";
       execute("powershell Compress-Archive $dir $file_dump");
     } else if ($operating_system == "Linux") {

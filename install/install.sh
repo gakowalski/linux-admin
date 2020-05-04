@@ -48,7 +48,7 @@ else
 fi
 
 # epel-repository, needed for ncdu
-sudo dnf install epel-release -y
+test -f /etc/yum.repos.d/epel.repo || sudo dnf install epel-release -y
 
 # for CentOS 8, recomennded in https://fedoraproject.org/wiki/EPEL
 cat /etc/yum.repos.d/CentOS-PowerTools.repo | grep enabled=0 \
@@ -57,7 +57,8 @@ cat /etc/yum.repos.d/CentOS-PowerTools.repo | grep enabled=0 \
 # based on https://rpms.remirepo.net/wizard/
 cat /etc/redhat-release | grep "CentOS Linux release 8" \
   && sudo dnf install https://rpms.remirepo.net/enterprise/remi-release-8.rpm  -y
-sudo dnf install yum-utils -y
+
+dnf list installed | grep yum-utils || sudo dnf install yum-utils -y
 
 if php --version
 then
@@ -120,7 +121,7 @@ then
 fi
 
 # download recomennded scripts
-sudo dnf install wget  -y
+wget --version || sudo dnf install wget  -y
 test ! -f certbot-auto && wget https://dl.eff.org/certbot-auto
 
 docker --version
@@ -128,7 +129,7 @@ if [ $? -eq 0 ]
 then
   echo docker already installed, doing nothing.
 else
-  read -p "Install docker? [y/N]" -n 1 -r
+  read -p "Install docker? [y/N]" -n 1 -r < /dev/tty
   echo
   if [[ $REPLY =~ ^[Yy]$ ]]
   then
@@ -154,7 +155,7 @@ if [ $? -eq 0 ]
 then
   echo mysql or MariaDB installed, doing nothing.
 else
-  read -p "Install MariaDB? [y/N]" -n 1 -r
+  read -p "Install MariaDB? [y/N]" -n 1 -r < /dev/tty
   echo
   if [[ $REPLY =~ ^[Yy]$ ]]
   then
