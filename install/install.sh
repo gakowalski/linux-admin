@@ -11,6 +11,7 @@ failure() {
 # replace yum with dnf
 # dnf is better (safer) at checking dependenciesexi
 dnf --version || sudo yum install dnf
+git --version || sudo dnf install git
 
 FILE=linux-admin
 URL=https://github.com/gakowalski/linux-admin
@@ -21,7 +22,6 @@ then
   git pull --recurse-submodules
   cd ..
 else
-  git --version || sudo dnf install git
   git clone --recurse-submodules $URL
 fi
 
@@ -29,8 +29,23 @@ fi
 FILE=/etc/dnf/dnf.conf
 if test -f $FILE
 then
-  cat $FILE | grep max_parallel_downloads && echo 'max_parallel_downloads=10' | sudo tee -a $FILE
-  cat $FILE | grep fastestmirror && echo 'fastestmirror=True' | sudo tee -a $FILE
+  if cat $FILE | grep max_parallel_downloads
+  then
+    echo dnf parallel downloads already set up
+  else
+    echo setting dnf parallel downloads
+    echo 'max_parallel_downloads=10' | sudo tee -a $FILE
+  fi
+
+  if cat $FILE | grep fastestmirror
+  then
+    echo dnf fastest mirror search enabled
+  else
+    echo enabling dnf fastest mirror search
+    echo 'fastestmirror=True' | sudo tee -a $FILE
+  fi
+else
+  echo dnf config file not found at standard locations
 fi
 
 # epel-repository, needed for ncdu
