@@ -8,6 +8,10 @@ failure() {
   exit 1
 }
 
+# replace yum with dnf
+# dnf is better (safer) at checking dependenciesexi
+dnf --version || sudo yum install dnf
+
 FILE=linux-admin
 URL=https://github.com/gakowalski/linux-admin
 
@@ -17,12 +21,9 @@ then
   git pull --recurse-submodules
   cd ..
 else
+  git --version || sudo dnf install git
   git clone --recurse-submodules $URL
 fi
-
-# replace yum with dnf
-# dnf is better (safer) at checking dependenciesexi
-dnf --version || sudo yum install dnf
 
 # some speedup
 FILE=/etc/dnf/dnf.conf
@@ -31,12 +32,6 @@ then
   cat $FILE | grep max_parallel_downloads && echo 'max_parallel_downloads=10' | sudo tee -a $FILE
   cat $FILE | grep fastestmirror && echo 'fastestmirror=True' | sudo tee -a $FILE
 fi
-
-# refresh packages to update
-sudo dnf list updates
-
-# propose updating (you'll be asked Y or N before install)
-sudo dnf update
 
 # epel-repository, needed for ncdu
 sudo dnf install epel-release
@@ -48,24 +43,34 @@ sudo dnf config-manager --set-enabled PowerTools
 cat /etc/redhat-release | grep "CentOS Linux release 8" \
   && sudo dnf install https://rpms.remirepo.net/enterprise/remi-release-8.rpm
 sudo dnf install yum-utils
-sudo dnf module reset php
-sudo dnf module install php:remi-7.4
 
-# ^ this installs php php-cli, common, fpm, json, mbstring, xml
-sudo dnf install httpd php-gd php-mysqlnd php-pdo php-soap php-xml php-intl
-# dependencies for composer
-sudo dnf install php-zip php-json
-
-# install composer globally
-if composer --version
+if php --version
 then
-  composer self-update
+
 else
-  php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-  php composer-setup.php
-  rm composer-setup.php
-  sudo mv composer.phar /usr/local/bin/composer
-  sudo chmod +x /usr/local/bin/composer
+  sudo dnf module reset php
+  sudo dnf module install php:remi-7.4
+  # ^ this installs php php-cli, common, fpm, json, mbstring, xml
+
+  sudo dnf install httpd php-gd php-mysqlnd php-pdo php-soap php-xml php-intl
+
+  # dependencies for composer
+  sudo dnf install php-zip php-json
+fi
+
+if php --version
+then
+  # install composer globally
+  if composer --version
+  then
+    composer self-update
+  else
+    php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+    php composer-setup.php
+    rm composer-setup.php
+    sudo mv composer.phar /usr/local/bin/composer
+    sudo chmod +x /usr/local/bin/composer
+  fi
 fi
 
 # install nodejs and npm
@@ -77,24 +82,30 @@ else
     && sudo dnf module install nodejs:13/default
 fi
 
-sudo dnf install python2 python3 python3-devel
-# gcc is sometimes needed for installing python packages
-sudo dnf install gcc
-# redhat-rpm-config is sometimes needed for installing python packages
-cat /etc/redhat-release | grep "CentOS" \
-  && sudo dnf install redhat-rpm-config
-
 # install recommended tools
 ncdu --version || sudo dnf install ncdu
 locate --version || { sudo dnf install mlocate && sudo updatedb; }
 iftop -h || sudo dnf install iftop
 
-# TODO: it seems it requires python and is NOT in epel-release
-sudo pip3 install glances
-glances --version || sudo dnf install glances
-glances --version || curl -L https://bit.ly/glances | /bin/bash
+python2 --version || sudo dnf install python2
+python3 --version || sudo dnf install python3 python3-devel
+
+if python3 --version
+then
+  # sometimes needed for python packages (eg. glances)
+  cat /etc/redhat-release | grep "CentOS" && sudo dnf install redhat-rpm-config
+  sudo dnf install gcc
+
+  if glances --version
+  then
+
+  else
+    sudo pip3 install glances
+  fi
+fi
 
 # download recomennded scripts
+sudo dnf install wget
 test ! -f certbot-auto && wget https://dl.eff.org/certbot-auto
 
 if docker --version
@@ -118,5 +129,18 @@ else
 
     # usergroup for users priviledged to use docker without sudo
     sudo groupadd docker
+  fi
+fi
+
+if mysql --version
+then
+else
+  read -p "Install MariaDB? [y/N]" -n 1 -r
+  echo
+  if [[ $REPLY =~ ^[Yy]$ ]]
+  then
+    sudo rpm --import https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
+    cp https://raw.githubusercontent.com/gakowalski/linux-admin/master/external-tools/yum.repos.d/mariadb.repo /etc/yum.repos.d/
+    sudo yum install MariaDB-server
   fi
 fi
