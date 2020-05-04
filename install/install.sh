@@ -55,8 +55,13 @@ cat /etc/yum.repos.d/CentOS-PowerTools.repo | grep enabled=0 \
   && sudo dnf config-manager --set-enabled PowerTools
 
 # based on https://rpms.remirepo.net/wizard/
-cat /etc/redhat-release | grep "CentOS Linux release 8" \
-  && sudo dnf install https://rpms.remirepo.net/enterprise/remi-release-8.rpm  -y
+if test -f /etc/yum.repos.d/remi.repo
+then
+  echo REMI repo already installed, doing nothing.
+else
+  cat /etc/redhat-release | grep "CentOS Linux release 8" \
+    && sudo dnf install https://rpms.remirepo.net/enterprise/remi-release-8.rpm  -y
+fi
 
 dnf list installed | grep yum-utils || sudo dnf install yum-utils -y
 
@@ -135,7 +140,7 @@ else
   then
     # install docker
     sudo dnf install device-mapper-persistent-data lvm2 -y
-    sudo dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+    test -f /etc/yum.repos.d/docker-ce.repo || sudo dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
     sudo dnf install docker-ce docker-ce-cli containerd.io -y --nobest
 
     # start now and test
@@ -147,6 +152,10 @@ else
 
     # usergroup for users priviledged to use docker without sudo
     sudo groupadd docker
+
+    # add this user to
+    groups | grep adm || sudo usermod --append --groups adm `whoami`
+    groups | grep docker || sudo usermod --append --groups docker `whoami`
   fi
 fi
 
@@ -159,8 +168,7 @@ else
   echo
   if [[ $REPLY =~ ^[Yy]$ ]]
   then
-    sudo rpm --import https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
-    cp linux-admin/master/external-tools/yum.repos.d/mariadb.repo /etc/yum.repos.d/
+    test -f /etc/yum.repos.d/mariadb.repo || cp linux-admin/master/external-tools/yum.repos.d/mariadb.repo /etc/yum.repos.d/
     sudo yum install MariaDB-server -y
   fi
 fi
