@@ -10,11 +10,13 @@ URL=https://github.com/gakowalski/linux-admin
 
 if test -d $FILE
 then
+  echo updating repo at $FILE
   cd $FILE
   git pull --recurse-submodules
   cd ..
 else
   if test -f $FILE
+  then
     echo will not overwrite $FILE, try installing to another folder
     exit 127
   else
