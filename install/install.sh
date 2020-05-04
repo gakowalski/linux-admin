@@ -10,8 +10,8 @@ failure() {
 
 # replace yum with dnf
 # dnf is better (safer) at checking dependenciesexi
-dnf --version || sudo yum install dnf
-git --version || sudo dnf install git --yes
+dnf --version || sudo yum install dnf -y
+git --version || sudo dnf install git -y
 
 FILE=linux-admin
 URL=https://github.com/gakowalski/linux-admin
@@ -49,15 +49,15 @@ else
 fi
 
 # epel-repository, needed for ncdu
-sudo dnf install epel-release --yes
+sudo dnf install epel-release -y
 
 # for CentOS 8, recomennded in https://fedoraproject.org/wiki/EPEL
 sudo dnf config-manager --set-enabled PowerTools
 
 # based on https://rpms.remirepo.net/wizard/
 cat /etc/redhat-release | grep "CentOS Linux release 8" \
-  && sudo dnf install https://rpms.remirepo.net/enterprise/remi-release-8.rpm  --yes
-sudo dnf install yum-utils --yes
+  && sudo dnf install https://rpms.remirepo.net/enterprise/remi-release-8.rpm  -y
+sudo dnf install yum-utils -y
 
 if php --version
 then
@@ -120,7 +120,7 @@ then
 fi
 
 # download recomennded scripts
-sudo dnf install wget  --yes
+sudo dnf install wget  -y
 test ! -f certbot-auto && wget https://dl.eff.org/certbot-auto
 
 if docker --version
