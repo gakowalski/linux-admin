@@ -16,13 +16,17 @@ git --version || sudo dnf install git -y
 FILE=linux-admin
 URL=https://github.com/gakowalski/linux-admin
 
-if test -f $FILE
+if test -d $FILE
 then
   cd $FILE
   git pull --recurse-submodules
   cd ..
 else
-  git clone --recurse-submodules $URL
+  if test -f $FILE
+    failure will not overwrite $FILE , try installing to another folder 
+  else
+    git clone --recurse-submodules $URL
+  fi
 fi
 
 # some speedup
