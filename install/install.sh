@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # replace yum with dnf
-# dnf is better (safer) at checking dependenciesexi
+# dnf is better (safer) at checking dependencies
 dnf --version || sudo yum install dnf -y
 git --version || sudo dnf install git -y
 
@@ -176,7 +176,7 @@ else
     sudo yum install MariaDB-server -y
 
     # start now
-    sudo systemctl start docker
+    sudo systemctl start mariadb
 
     # start on-boot
     sudo systemctl enable mariadb
