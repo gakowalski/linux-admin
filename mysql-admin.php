@@ -220,7 +220,7 @@ if (isset($dump)) {
   if ($dump != 'all-users') {
     $cmds[] = "$mysqldump --host=$host --user=$user --password=$password --port=$port --log-error=$file_log --single-transaction --extended-insert --verbose $database > $file_sql";
   } else {
-    $cmds[] = "$ptsg --host=$host --user=$user --password=$password --port=$port > $file_sql";
+    $cmds[] = "$ptsg --host=$host --user=$user --password=$password --port=$port --ignore=mysql,root --flush > $file_sql";
   }
 
 
