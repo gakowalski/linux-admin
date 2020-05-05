@@ -194,42 +194,42 @@ if (isset($connect)) {
   } else {
     info("Unknown client $client");
   }
+}
 
-  if (isset($dump)) {
-    $cmds = [];
+if (isset($dump)) {
+  $cmds = [];
 
-    if ($dump == 'all-databases') {
-      $database = '--all-databases';
-    } else if ($dump == 'user-databases') {
-      $database = '--ignore-database=mysql --ignore-database=performance_schema --ignore-database=information_schema';
-    } else {
-      $database = $dump;
-    }
+  if ($dump == 'all-databases') {
+    $database = '--all-databases';
+  } else if ($dump == 'user-databases') {
+    $database = '--ignore-database=mysql --ignore-database=performance_schema --ignore-database=information_schema';
+  } else {
+    $database = $dump;
+  }
 
-    $filename = "$host-$dump-". date('Y-m-d-') . time();
-    $file_sql = "$filename.sql";
-    $file_log = "$filename.log";
-    $file_gz  = "$file_sql.sql";
+  $filename = "$host-$dump-". date('Y-m-d-') . time();
+  $file_sql = "$filename.sql";
+  $file_log = "$filename.log";
+  $file_gz  = "$file_sql.sql";
 
-    $cmds[] = "$mysqldump --host=$host --user=$user --password=$password --log-error=$db_log --single-transaction --extended-insert --verbose $database > $file_sql";
+  $cmds[] = "$mysqldump --host=$host --user=$user --password=$password --port=$port --log-error=$file_log --single-transaction --extended-insert --verbose $database > $file_sql";
 
-    if (posix_getuid() == 0){
-      $cmds[] = 'pv --version > /dev/null || dnf install pv -y || yum install pv -y';
-    }
-    $cmds[] = "pv $file_sql | gzip -c -v > $file_gz || gzip -v $file_sql";
+  if (posix_getuid() == 0){
+    $cmds[] = 'pv --version > /dev/null || dnf install pv -y || yum install pv -y';
+  }
+  $cmds[] = "pv $file_sql | gzip -c -v > $file_gz || gzip -v $file_sql";
 
-    execute($cmds);
+  execute($cmds);
 
-    if (realpath($file_gz)) {
-      info("Database backup complete: " . realpath($file_gz));
+  if (realpath($file_gz)) {
+    info("Database backup complete: " . realpath($file_gz));
+    info("Log file created: " . realpath($file_log));
+  } else {
+    if (realpath($file_sql)) {
+      info("Database backup complete: " . realpath($file_sql));
       info("Log file created: " . realpath($file_log));
     } else {
-      if (realpath($file_sql)) {
-        info("Database backup complete: " . realpath($file_sql));
-        info("Log file created: " . realpath($file_log));
-      } else {
-        failure("Database backup failure");
-      }
+      failure("Database backup failure");
     }
   }
 }
