@@ -220,5 +220,6 @@ then
   then
     sudo systemctl start httpd
     sudo systemctl enable httpd
+    sudo httpd -M | grep ssl || sudo dnf install mod_ssl -y
   fi
 fi

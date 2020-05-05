@@ -93,6 +93,12 @@ wget https://raw.githubusercontent.com/major/MySQLTuner-perl/master/vulnerabilit
 perl mysqltuner.pl
 ```
 
+## Percona Toolkit Variable Check
+
+```
+pt-variable-advisor --user=root localhost
+```
+
 # PostgreSQL
 
 # postgresqltuner
