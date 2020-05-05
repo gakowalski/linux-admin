@@ -220,6 +220,22 @@ then
   then
     sudo systemctl start httpd
     sudo systemctl enable httpd
+
+    # to enable HTTPS
     sudo httpd -M | grep ssl || sudo dnf install mod_ssl -y
+
+    # to enable proxying to docker services
+    sudo setsebool -P httpd_can_network_connect 1
   fi
 fi
+
+date
+read -p "Change timezone to Europe/Warsaw? [y/N] " -n 1 -r < /dev/tty
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+  echo Trying to change.
+  cat /etc/redhat-release | grep "CentOS" && test -f /etc/localtime && sudo ln -sf /usr/share/zoneinfo/Europe/Warsaw /etc/localtime
+  # alternative way, maybe more portable: use timedatectl 
+fi
+date
