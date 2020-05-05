@@ -202,7 +202,7 @@ if (isset($dump)) {
   if ($dump == 'all-databases') {
     $database = '--all-databases';
   } else if ($dump == 'user-databases') {
-    $database = '--ignore-database=mysql --ignore-database=performance_schema --ignore-database=information_schema';
+    $database = '--all-databases --ignore-database=mysql --ignore-database=performance_schema --ignore-database=information_schema';
   } else {
     $database = $dump;
   }
