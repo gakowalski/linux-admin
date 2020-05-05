@@ -134,7 +134,7 @@ if [ $? -eq 0 ]
 then
   echo docker already installed, doing nothing.
 else
-  read -p "Install docker? [y/N]" -n 1 -r < /dev/tty
+  read -p "Install docker? [y/N] " -n 1 -r < /dev/tty
   echo
   if [[ $REPLY =~ ^[Yy]$ ]]
   then
@@ -159,16 +159,66 @@ else
   fi
 fi
 
-mysql --version
+mysqld --version
 if [ $? -eq 0 ]
 then
   echo mysql or MariaDB installed, doing nothing.
 else
-  read -p "Install MariaDB? [y/N]" -n 1 -r < /dev/tty
+  read -p "Install MariaDB? [y/N] " -n 1 -r < /dev/tty
   echo
   if [[ $REPLY =~ ^[Yy]$ ]]
   then
     test -f /etc/yum.repos.d/mariadb.repo || sudo dnf config-manager --add-repo linux-admin/external-tools/yum.repos.d/mariadb.repo
     sudo yum install MariaDB-server -y
+
+    # start now
+    sudo systemctl start docker
+
+    # start on-boot
+    sudo systemctl enable mariadb
+
+    # Two all-privilege accounts were created.
+    # One is root@localhost, it has no password, but you need to
+    # be system 'root' user to connect. Use, for example, sudo mysql
+    # The second is mysql@localhost, it has no password either, but
+    # you need to be the system 'mysql' user to connect.
+    # After connecting you can set the password, if you would need to be
+    # able to connect as any of these users with a password and without sudo
+
+    # Percona Toolkit contains pt-show-grants command to dump users
+    if pt-show-grants --version
+    then
+      echo Percona Toolkit already installed, doing nothing.
+    else
+      cat /etc/redhat-release | grep "CentOS Linux release 8" \
+        && sudo dnf install https://www.percona.com/downloads/percona-toolkit/3.2.0/binary/redhat/8/x86_64/percona-toolkit-3.2.0-1.el7.x86_64.rpm -y
+      cat /etc/redhat-release | grep "CentOS Linux release 7" \
+        && sudo dnf install https://www.percona.com/downloads/percona-toolkit/3.2.0/binary/redhat/7/x86_64/percona-toolkit-3.2.0-1.el7.x86_64.rpm -y
+    fi
+  fi
+fi
+
+if cat /etc/redhat-release | grep "CentOS Linux release 8"
+then
+  read -p "Enable Cockpit [default port 9090] ? [y/N] " -n 1 -r < /dev/tty
+  echo
+  if [[ $REPLY =~ ^[Yy]$ ]]
+  then
+    sudo systemctl start cockpit.socket
+    sudo systemctl enable cockpit.socket
+
+    # for Diagnostic Reports tab
+    sosreport --help || sudo dnf install sos -y
+  fi
+fi
+
+if httpd -v
+then
+  read -p "Enable Apache [default port 80 and 443] ? [y/N] " -n 1 -r < /dev/tty
+  echo
+  if [[ $REPLY =~ ^[Yy]$ ]]
+  then
+    sudo systemctl start httpd
+    sudo systemctl enable httpd
   fi
 fi

@@ -15,7 +15,9 @@ extract(prepare_options(getopt('', [
   'mysql:',
   'mysqladmin:',
   'mysqldump:',
+  'ptsg:',
   'dump:',
+  ':',
 ]), [
   'config' => 'my.cnf',
   'user' => 'root',
@@ -26,6 +28,7 @@ extract(prepare_options(getopt('', [
   'mysql' => 'mysql',
   'mysqladmin'  => 'mysqladmin',
   'mysqldump'   => 'mysqldump',
+  'ptsg' => 'pt-show-grants',
 ]));
 
 if ($argc == 1 || isset($help)) {
@@ -40,12 +43,14 @@ if ($argc == 1 || isset($help)) {
       --mysql=      Path to mysql command
       --mysqladmin= Path to mysqladmin command
       --mysqldump=  Path to mysqldump command
+      --ptsg=       Path to pt-show-grants
     --connect
       --user=
       --password=
       --host=
       --port=
-    --dump=         Dump single database or 'all-databases' or 'user-databases'
+    --dump=         Dump single database or 'all-databases', or 'user-databases'
+                    or 'all-users' (all except 'root', 'mysql', and '')
   ";
   exit;
 }
@@ -203,7 +208,7 @@ if (isset($dump)) {
     $database = '--all-databases';
   } else if ($dump == 'user-databases') {
     $database = '--all-databases --ignore-database=mysql --ignore-database=performance_schema --ignore-database=information_schema';
-  } else {
+  } else if ($dump == '') {
     $database = $dump;
   }
 
@@ -212,7 +217,12 @@ if (isset($dump)) {
   $file_log = "$filename.log";
   $file_gz  = "$file_sql.gz";
 
-  $cmds[] = "$mysqldump --host=$host --user=$user --password=$password --port=$port --log-error=$file_log --single-transaction --extended-insert --verbose $database > $file_sql";
+  if ($dump != 'all-users') {
+    $cmds[] = "$mysqldump --host=$host --user=$user --password=$password --port=$port --log-error=$file_log --single-transaction --extended-insert --verbose $database > $file_sql";
+  } else {
+    $cmds[] = "$ptsg --host=$host --user=$user --password=$password --port=$port > $file_sql";
+  }
+
 
   if (posix_getuid() == 0){
     $cmds[] = 'pv --version > /dev/null || dnf install pv -y || yum install pv -y';
