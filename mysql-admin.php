@@ -210,7 +210,7 @@ if (isset($dump)) {
   $filename = "$host-$dump-". date('Y-m-d-') . time();
   $file_sql = "$filename.sql";
   $file_log = "$filename.log";
-  $file_gz  = "$file_sql.sql";
+  $file_gz  = "$file_sql.gz";
 
   $cmds[] = "$mysqldump --host=$host --user=$user --password=$password --port=$port --log-error=$file_log --single-transaction --extended-insert --verbose $database > $file_sql";
 
