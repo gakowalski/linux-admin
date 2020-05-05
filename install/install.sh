@@ -147,6 +147,10 @@ else
     sudo systemctl start docker
     sudo docker run hello-world
 
+    # install portainer, accessible at 127.0.0.1:9000
+    sudo docker volume create portainer_data
+    sudo docker run -d -p 8000:8000 -p 9000:9000 --name=portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer
+
     # start on-boot
     sudo systemctl enable docker
 
@@ -236,6 +240,6 @@ if [[ $REPLY =~ ^[Yy]$ ]]
 then
   echo Trying to change.
   cat /etc/redhat-release | grep "CentOS" && test -f /etc/localtime && sudo ln -sf /usr/share/zoneinfo/Europe/Warsaw /etc/localtime
-  # alternative way, maybe more portable: use timedatectl 
+  # alternative way, maybe more portable: use timedatectl
 fi
 date
