@@ -208,6 +208,10 @@ then
   echo
   if [[ $REPLY =~ ^[Yy]$ ]]
   then
+    # Software Updates and Applications (cockpit package manager) tabs
+    sudo dnf install cockpit-packagekit -y
+
+    # start now and enable on-boot
     sudo systemctl start cockpit.socket
     sudo systemctl enable cockpit.socket
 
