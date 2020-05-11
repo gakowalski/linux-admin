@@ -77,7 +77,7 @@ else
 
   # dependencies for composer
   sudo dnf install php-zip php-json -y
-  
+
   # dependencies for linux-admin (for posix_getuid() function)
   sudo dnf install php-process
 fi
@@ -223,7 +223,7 @@ then
   fi
 fi
 
-if test -f 
+if test -f /etc/webmin/miniserv.conf
 then
   echo Webmin installed, doing nothing.
 else
