@@ -3,3 +3,5 @@ name=Webmin Distribution Neutral
 #baseurl=https://download.webmin.com/download/yum
 mirrorlist=https://download.webmin.com/download/yum/mirrorlist
 enabled=1
+gpgkey=https://download.webmin.com/jcameron-key.asc
+gpgcheck=1
