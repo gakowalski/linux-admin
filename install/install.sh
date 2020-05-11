@@ -173,7 +173,7 @@ else
   if [[ $REPLY =~ ^[Yy]$ ]]
   then
     test -f /etc/yum.repos.d/mariadb.repo || sudo dnf config-manager --add-repo linux-admin/external-tools/yum.repos.d/mariadb.repo
-    sudo yum install MariaDB-server -y
+    sudo dnf install MariaDB-server -y
 
     # start now
     sudo systemctl start mariadb
