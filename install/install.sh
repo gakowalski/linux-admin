@@ -223,6 +223,19 @@ then
   fi
 fi
 
+if test -f 
+then
+  echo Webmin installed, doing nothing.
+else
+  read -p "Install Webmin? [y/N] " -n 1 -r < /dev/tty
+  echo
+  if [[ $REPLY =~ ^[Yy]$ ]]
+  then
+    test -f /etc/yum.repos.d/webmin.repo || sudo dnf config-manager --add-repo linux-admin/external-tools/yum.repos.d/webmin.repo
+    sudo dnf install webmin -y
+  fi
+fi
+
 if httpd -v
 then
   read -p "Enable Apache [default port 80 and 443] ? [y/N] " -n 1 -r < /dev/tty
