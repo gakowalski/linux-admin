@@ -130,7 +130,21 @@ fi
 
 # download recomennded scripts
 wget --version || sudo dnf install wget  -y
-test ! -f certbot-auto && wget https://dl.eff.org/certbot-auto
+
+if test ! -f /usr/local/bin/certbot-auto
+then
+  echo Certbot already installed, doing nothing.
+else
+  read -p "Install Certbot? [y/N] " -n 1 -r < /dev/tty
+  echo
+  if [[ $REPLY =~ ^[Yy]$ ]]
+  then
+    wget https://dl.eff.org/certbot-auto
+    sudo mv certbot-auto /usr/local/bin/certbot-auto
+    sudo chown root /usr/local/bin/certbot-auto
+    sudo chmod 0755 /usr/local/bin/certbot-auto
+  fi
+fi
 
 docker --version
 if [ $? -eq 0 ]
