@@ -61,6 +61,8 @@ then
 else
   cat /etc/redhat-release | grep "CentOS Linux release 8" \
     && sudo dnf install https://rpms.remirepo.net/enterprise/remi-release-8.rpm  -y
+  cat /etc/redhat-release | grep "CentOS Linux release 7" \
+    && sudo dnf install https://rpms.remirepo.net/enterprise/remi-release-7.rpm  -y
 fi
 
 dnf list installed | grep yum-utils || sudo dnf install yum-utils -y
@@ -79,7 +81,7 @@ else
   sudo dnf install php-zip php-json -y
 
   # dependencies for linux-admin (for posix_getuid() function)
-  sudo dnf install php-process
+  sudo dnf install php-process -y
 fi
 
 if php --version
