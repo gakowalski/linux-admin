@@ -279,3 +279,30 @@ then
   # alternative way, maybe more portable: use timedatectl
 fi
 date
+
+if firewall-cmd --version
+then
+  read -p "Enable FirewallD ? [y/N] " -n 1 -r < /dev/tty
+  echo
+  if [[ $REPLY =~ ^[Yy]$ ]]
+  then
+    sudo dnf install firewalld -y
+    sudo systemctl start firewalld
+    sudo firewall-cmd --list-services --permanent
+    if httpd -v
+    then
+      sudo firewall-cmd --zone=public --add-service=http  --permanent
+      sudo firewall-cmd --zone=public --add-service=https  --permanent
+      sudo firewall-cmd --reload
+    fi
+
+
+    if docker container ls | grep portainer
+    then
+      sudo firewall-cmd --zone=public --add-port=9000/tcp --permanent
+      sudo firewall-cmd --reload
+    fi
+
+    sudo systemctl enable firewalld
+  fi
+fi
