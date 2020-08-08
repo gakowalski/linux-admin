@@ -221,7 +221,7 @@ else
   fi
 fi
 
-if cat /etc/redhat-release | grep "CentOS Linux release 8"
+if cockpit-bridge --help
 then
   read -p "Enable Cockpit [default port 9090] ? [y/N] " -n 1 -r < /dev/tty
   echo
