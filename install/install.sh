@@ -133,7 +133,7 @@ fi
 # download recomennded scripts
 wget --version || sudo dnf install wget  -y
 
-if test ! -f /usr/local/bin/certbot-auto
+if test -f /usr/local/bin/certbot-auto
 then
   echo Certbot already installed, doing nothing.
 else
