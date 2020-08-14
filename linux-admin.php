@@ -70,7 +70,7 @@ if (isset($disable)) {
       if (false === unlink($file)) {
         failure("Can't remove $file");
       } else {
-        info("Remoed special rules file $file");
+        info("Removed special rules file $file");
       }
       break;
     default:

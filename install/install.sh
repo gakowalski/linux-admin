@@ -133,7 +133,7 @@ fi
 # download recomennded scripts
 wget --version || sudo dnf install wget  -y
 
-if test ! -f /usr/local/bin/certbot-auto
+if test -f /usr/local/bin/certbot-auto
 then
   echo Certbot already installed, doing nothing.
 else
@@ -221,7 +221,7 @@ else
   fi
 fi
 
-if cat /etc/redhat-release | grep "CentOS Linux release 8"
+if cockpit-bridge --help
 then
   read -p "Enable Cockpit [default port 9090] ? [y/N] " -n 1 -r < /dev/tty
   echo
