@@ -10,3 +10,6 @@
 [submodule "external-tools/php-fpmpal"]
 	path = external-tools/php-fpmpal
 	url = https://github.com/pksteyn/php-fpmpal
+[submodule "external-tools/tuning-primer.sh"]
+	path = external-tools/tuning-primer.sh
+	url = https://github.com/BMDan/tuning-primer.sh
