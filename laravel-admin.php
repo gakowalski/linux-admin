@@ -10,6 +10,7 @@ extract(prepare_options(getopt('', [
   'mysqldump:',
   'find',
   'check',
+  'verbose',
 ]), [
   'dir' => '.',
   'mysqldump' => 'mysqldump',
@@ -29,11 +30,13 @@ if ($argc == 1 || isset($help)) {
                 plus some selected options extracted from database
     --find      Try to locate Laravel instances
     --check     Check for configuration issues and check source files for common errors
+    --verbose
   ";
   exit;
 }
 
 $operating_system = get_operating_system();
+$verbose = isset($verbose);
 
 if (false === isset($find)) {
   $dir = rtrim($dir, '/');
@@ -165,7 +168,14 @@ if (isset($check)):
     $class_name = $path_parts['filename'];
     $contains_class_name = `grep 'class $class_name' $source_file_path`;
 
-    info("Detected: $source_file_path, should contain class name $class_name: " . ($contains_class_name? '✔' : 'error!'));
+    //info("Detected: $source_file_path, should contain class name $class_name: " . ($contains_class_name? '✔' : 'error!'));
+    if ($contains_class_name) {
+      if ($verbose) {
+        info("✔ $source_file_path: checked if filename and class name are the same");
+      }
+    } else {
+      info("ERROR: $source_file_path: filename and class name are NOT the same.");
+    }
   }
   /*
   foreach (string_to_array($migration_files) as $source_file_path) {
