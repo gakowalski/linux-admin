@@ -158,13 +158,19 @@ if (isset($check)):
 
   /** check source files **/
   $app_files = `find $dir/app/ -type f -name "*.php"`;
-  $migration_files = `find $dir/database/migration/ -type f -name "*.php"`;
+  $migration_files = `find $dir/database/migrations/ -type f -name "*.php"`;
 
   foreach (string_to_array($app_files) as $source_file_path) {
-    info("Detected: $source_file_path\n");
+    $path_parts = pathinfo($source_file_path);
+    $class_name = $path_parts['filename'];
+    $contains_class_name = `grep 'class $class_name' $source_file_path`;
+
+    info("Detected: $source_file_path, should contain class name $class_name: " . ($contains_class_name? '✔' : 'error!'));
   }
+  /*
   foreach (string_to_array($migration_files) as $source_file_path) {
-    info("Detected: $source_file_path\n");
+    info("Detected: $source_file_path");
   }
+  */
 
 endif;
