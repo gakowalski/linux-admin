@@ -174,7 +174,7 @@ if (isset($check)):
     $path_parts = pathinfo($source_file_path);
     $class_name = $path_parts['filename'];
     $contains_class_name = `grep 'class $class_name' $source_file_path`;
-    $syntax_report = exec("php -l $source_file_path", $contains_syntax_errors);
+    exec("php -l $source_file_path", $syntax_report, $contains_syntax_errors);
 
     //info("Detected: $source_file_path, should contain class name $class_name: " . ($contains_class_name? '✔' : 'error!'));
     if ($contains_class_name) {
