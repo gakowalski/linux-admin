@@ -150,13 +150,20 @@ if (isset($find)) {
 
 /*** --check ***/
 if (isset($check)):
+  info('Checking configuration.');
 
   /** check configuration **/
   if ($config_array['APP_NAME'] == 'Laravel') {
     info("Default APP_NAME used. Is this OK for this project to be called 'Laravel'? This name might be injected into the <title> tag.");
   }
   if (empty($config_array['APP_KEY'])) {
-    info("Empty APP_KEY. Run 'php artisan key:generate' to generate new one.\n");
+    info("Empty APP_KEY. Run 'php artisan key:generate' to generate new one.");
+  }
+
+  if ($verbose) {
+    info('Checking source files.');
+  } else {
+    info('Checking source files - only notices and errors will be reported.');
   }
 
   /** check source files **/
@@ -167,6 +174,7 @@ if (isset($check)):
     $path_parts = pathinfo($source_file_path);
     $class_name = $path_parts['filename'];
     $contains_class_name = `grep 'class $class_name' $source_file_path`;
+    $syntax_report = exec("php -l $source_file_path", $contains_syntax_errors);
 
     //info("Detected: $source_file_path, should contain class name $class_name: " . ($contains_class_name? '✔' : 'error!'));
     if ($contains_class_name) {
@@ -176,7 +184,16 @@ if (isset($check)):
     } else {
       info("ERROR: $source_file_path: filename and class name are NOT the same.");
     }
+
+    if ($contains_syntax_errors) {
+      info("ERROR: $source_file_path: $syntax_report");
+    } else {
+      if ($verbose) {
+        info("✔ $source_file_path: $syntax_report");
+      }
+    }
   }
+
   /*
   foreach (string_to_array($migration_files) as $source_file_path) {
     info("Detected: $source_file_path");
