@@ -243,12 +243,17 @@ if (isset($find)) {
 
   $cmds = [];
 
-  if (posix_getuid() == 0){
-    info("Running as root user");
-    $cmds[] = 'dnf install mlocate -y || yum install mlocate -y';
-    $cmds[] = 'updatedb';
+  if (function_exists('posix_getuid')) {
+    if (posix_getuid() == 0){
+      info("Running as root user");
+      $cmds[] = 'dnf install mlocate -y || yum install mlocate -y';
+      $cmds[] = 'updatedb';
+    } else {
+      info("Running as non-root user - results may be incomplete!");
+    }
   } else {
-    info("Running as non-root user - results may be incomplete!");
+    info("Cannot determine if running as root user - results may be incomplete!");
+    info("Consider installing php-process: dnf install php-process");
   }
 
   $cmds[] = "locate wp-config.php | sed --expression='s/wp-config.php//g'";

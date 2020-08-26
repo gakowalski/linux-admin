@@ -8,7 +8,8 @@ extract(prepare_options(getopt('', [
   'report',
   'backup::',
   'mysqldump:',
-  'find'
+  'find',
+  'check',
 ]), [
   'dir' => '.',
   'mysqldump' => 'mysqldump',
@@ -126,12 +127,17 @@ if (isset($find)) {
 
   $cmds = [];
 
-  if (posix_getuid() == 0){
-    info("Running as root user");
-    $cmds[] = 'dnf install mlocate -y || yum install mlocate -y';
-    $cmds[] = 'updatedb';
+  if (function_exists('posix_getuid')) {
+    if (posix_getuid() == 0){
+      info("Running as root user");
+      $cmds[] = 'dnf install mlocate -y || yum install mlocate -y';
+      $cmds[] = 'updatedb';
+    } else {
+      info("Running as non-root user - results may be incomplete!");
+    }
   } else {
-    info("Running as non-root user - results may be incomplete!");
+    info("Cannot determine if running as root user - results may be incomplete!");
+    info("Consider installing php-process: dnf install php-process");
   }
 
   $cmds[] = "locate artisan | sed --expression='s/artisan//g'";
@@ -144,10 +150,10 @@ if (isset($check)):
 
   /** check configuration **/
   if ($config_array['APP_NAME'] == 'Laravel') {
-    echo "Default APP_NAME used. Is this OK for this project to be called 'Laravel'? This name might be injected into the <title> tag.\n";
+    info("Default APP_NAME used. Is this OK for this project to be called 'Laravel'? This name might be injected into the <title> tag.");
   }
   if (empty($config_array['APP_KEY'])) {
-    echo "Empty APP_KEY. Run 'php artisan key:generate' to generate new one.\n";
+    info("Empty APP_KEY. Run 'php artisan key:generate' to generate new one.\n");
   }
 
   /** check source files **/
@@ -155,10 +161,10 @@ if (isset($check)):
   $migration_files = `find $dir/database/migration/ -type f -name "*.php"`;
 
   foreach (string_to_array($app_files) as $source_file_path) {
-    echo "Detected: $source_file_path\n";
+    info("Detected: $source_file_path\n");
   }
   foreach (string_to_array($migration_files) as $source_file_path) {
-    echo "Detected: $source_file_path\n";
+    info("Detected: $source_file_path\n");
   }
 
 endif;
