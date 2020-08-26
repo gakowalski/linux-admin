@@ -251,7 +251,7 @@ if (isset($find)) {
     info("Running as non-root user - results may be incomplete!");
   }
 
-  $cmds[] = 'locate wp-config.php';
+  $cmds[] = "locate wp-config.php | sed --expression='s/wp-config.php//g'";
 
   execute($cmds);
 }

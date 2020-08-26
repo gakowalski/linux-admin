@@ -27,6 +27,7 @@ if ($argc == 1 || isset($help)) {
     --report    Dump of all constants and selected variables extracted from config file
                 plus some selected options extracted from database
     --find      Try to locate Laravel instances
+    --check     Check for configuration issues and check source files for common errors
   ";
   exit;
 }
@@ -133,7 +134,31 @@ if (isset($find)) {
     info("Running as non-root user - results may be incomplete!");
   }
 
-  $cmds[] = "locate $config_file";
+  $cmds[] = "locate artisan | sed --expression='s/artisan//g'";
 
   execute($cmds);
 }
+
+/*** --check ***/
+if (isset($check)):
+
+  /** check configuration **/
+  if ($config_array['APP_NAME'] == 'Laravel') {
+    echo "Default APP_NAME used. Is this OK for this project to be called 'Laravel'? This name might be injected into the <title> tag.\n";
+  }
+  if (empty($config_array['APP_KEY'])) {
+    echo "Empty APP_KEY. Run 'php artisan key:generate' to generate new one.\n";
+  }
+
+  /** check source files **/
+  $app_files = `find $dir/app/ -type f -name "*.php"`;
+  $migration_files = `find $dir/database/migration/ -type f -name "*.php"`;
+
+  foreach (string_to_array($app_files) as $source_file_path) {
+    echo "Detected: $source_file_path\n";
+  }
+  foreach (string_to_array($migration_files) as $source_file_path) {
+    echo "Detected: $source_file_path\n";
+  }
+
+endif;
