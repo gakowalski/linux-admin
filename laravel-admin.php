@@ -8,7 +8,9 @@ extract(prepare_options(getopt('', [
   'report',
   'backup::',
   'mysqldump:',
-  'find'
+  'find',
+  'check',
+  'verbose',
 ]), [
   'dir' => '.',
   'mysqldump' => 'mysqldump',
@@ -27,11 +29,14 @@ if ($argc == 1 || isset($help)) {
     --report    Dump of all constants and selected variables extracted from config file
                 plus some selected options extracted from database
     --find      Try to locate Laravel instances
+    --check     Check for configuration issues and check source files for common errors
+    --verbose
   ";
   exit;
 }
 
 $operating_system = get_operating_system();
+$verbose = isset($verbose);
 
 if (false === isset($find)) {
   $dir = rtrim($dir, '/');
@@ -125,15 +130,78 @@ if (isset($find)) {
 
   $cmds = [];
 
-  if (posix_getuid() == 0){
-    info("Running as root user");
-    $cmds[] = 'dnf install mlocate -y || yum install mlocate -y';
-    $cmds[] = 'updatedb';
+  if (function_exists('posix_getuid')) {
+    if (posix_getuid() == 0){
+      info("Running as root user");
+      $cmds[] = 'dnf install mlocate -y || yum install mlocate -y';
+      $cmds[] = 'updatedb';
+    } else {
+      info("Running as non-root user - results may be incomplete!");
+    }
   } else {
-    info("Running as non-root user - results may be incomplete!");
+    info("Cannot determine if running as root user - results may be incomplete!");
+    info("Consider installing php-process: dnf install php-process");
   }
 
-  $cmds[] = "locate $config_file";
+  $cmds[] = "locate artisan | sed --expression='s/artisan//g'";
 
   execute($cmds);
 }
+
+/*** --check ***/
+if (isset($check)):
+  info('Checking configuration.');
+
+  /** check configuration **/
+  if ($config_array['APP_NAME'] == 'Laravel') {
+    info("Default APP_NAME used. Is this OK for this project to be called 'Laravel'? This name might be injected into the <title> tag.");
+  }
+  if (empty($config_array['APP_KEY'])) {
+    info("Empty APP_KEY. Run 'php artisan key:generate' to generate new one.");
+  }
+
+  if ($verbose) {
+    info('Checking source files.');
+  } else {
+    info('Checking source files - only notices and errors will be reported.');
+  }
+
+  /** check source files **/
+  $app_files = `find $dir/app/ -type f -name "*.php"`;
+  $migration_files = `find $dir/database/migrations/ -type f -name "*.php"`;
+
+  foreach (string_to_array($app_files) as $source_file_path) {
+    $path_parts = pathinfo($source_file_path);
+    $class_name = $path_parts['filename'];
+    $contains_class_name = `grep 'class $class_name' $source_file_path`;
+
+    exec("php -l $source_file_path", $syntax_report, $contains_syntax_errors);
+    if ($syntax_report) {
+      $syntax_report = implode("\n", $syntax_report);
+    }
+
+    //info("Detected: $source_file_path, should contain class name $class_name: " . ($contains_class_name? '✔' : 'error!'));
+    if ($contains_class_name) {
+      if ($verbose) {
+        info("✔ $source_file_path: checked if filename and class name are the same");
+      }
+    } else {
+      info("ERROR: $source_file_path: filename and class name are NOT the same.");
+    }
+
+    if ($contains_syntax_errors) {
+      info("ERROR: $source_file_path: $syntax_report");
+    } else {
+      if ($verbose) {
+        info("✔ $source_file_path: $syntax_report");
+      }
+    }
+  }
+
+  /*
+  foreach (string_to_array($migration_files) as $source_file_path) {
+    info("Detected: $source_file_path");
+  }
+  */
+
+endif;
