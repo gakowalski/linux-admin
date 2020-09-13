@@ -103,9 +103,17 @@ fi
 if npm -v
 then
   sudo npm i -g npm
+  if pnpm -v
+  then
+    sudo pnpm add -g pnpm
+  else
+    npm i -g pnpm
+  fi
 else
   cat /etc/redhat-release | grep "CentOS Linux release 8" \
     && sudo dnf module install nodejs:13/default -y
+  npm i -g pnpm
+  npm install -g gnomon
 fi
 
 # install recommended tools
