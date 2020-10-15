@@ -82,6 +82,9 @@ else
 
   # dependencies for linux-admin (for posix_getuid() function)
   sudo dnf install php-process -y
+
+  # suggested for Wordpress
+  sudo dnf install php-imagick -y
 fi
 
 if php --version
