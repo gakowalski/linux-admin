@@ -5,6 +5,7 @@ require 'common/functions.php';
 extract(prepare_options(getopt('', [
   'help',
   'report',
+  'list:',
   'user:',
   'enable:',
   'disable:',
@@ -19,6 +20,8 @@ if ($argc == 1 || isset($help)) {
   Possible options:
 
     --help        This screen.
+    --list=       Get list of something
+      users
     --user=       Set target user (if applicable)
     --enable=
     --disable=
@@ -38,6 +41,16 @@ if (posix_getuid() == 0){
 
 if (isset($report)) {
 
+}
+
+if (isset($list)) {
+  switch ($list) {
+    case 'users':
+      execute(["awk -F':' '{ print $1}' /etc/passwd | sort"]);
+      break;
+    default:
+      info("Unknown category $list - objects can't be listed");
+  }
 }
 
 if (isset($enable)) {

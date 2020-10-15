@@ -11,7 +11,7 @@ URL=https://github.com/gakowalski/linux-admin
 if test -d $FILE
 then
   echo updating repo at $FILE
-  cd $FILE
+  cd $FILE || exit
   git pull --recurse-submodules
   cd ..
 else
@@ -79,15 +79,12 @@ else
 
   # dependencies for composer
   sudo dnf install php-zip php-json -y
-  
-  # dependencies for wordpress
-  sudo dnf install php-bcmath
 
   # dependencies for linux-admin (for posix_getuid() function)
   sudo dnf install php-process -y
 
   # suggested for Wordpress
-  sudo dnf install php-imagick -y
+  sudo dnf install php-bcmath php-imagick -y
 fi
 
 if php --version
@@ -162,8 +159,8 @@ else
   fi
 fi
 
-docker --version
-if [ $? -eq 0 ]
+
+if docker --version
 then
   echo docker already installed, doing nothing.
 else
@@ -196,8 +193,8 @@ else
   fi
 fi
 
-mysqld --version
-if [ $? -eq 0 ]
+
+if mysqld --version
 then
   echo mysql or MariaDB installed, doing nothing.
 else
