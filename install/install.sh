@@ -79,6 +79,9 @@ else
 
   # dependencies for composer
   sudo dnf install php-zip php-json -y
+  
+  # dependencies for wordpress
+  sudo dnf install php-bcmath
 
   # dependencies for linux-admin (for posix_getuid() function)
   sudo dnf install php-process -y
