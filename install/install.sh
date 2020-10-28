@@ -40,8 +40,13 @@ then
   then
     echo dnf fastest mirror search enabled
   else
-    echo enabling dnf fastest mirror search
-    echo 'fastestmirror=True' | sudo tee -a $FILE
+    read -p "Enable dnf to search for fastest mirror? [y/N] " -n 1 -r < /dev/tty
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]
+    then
+      echo enabling dnf fastest mirror search
+      echo 'fastestmirror=True' | sudo tee -a $FILE
+    fi
   fi
 else
   echo dnf config file not found at standard locations
@@ -225,9 +230,9 @@ else
       echo Percona Toolkit already installed, doing nothing.
     else
       cat /etc/redhat-release | grep "CentOS Linux release 8" \
-        && sudo dnf install https://www.percona.com/downloads/percona-toolkit/3.2.0/binary/redhat/8/x86_64/percona-toolkit-3.2.0-1.el7.x86_64.rpm -y
+        && sudo dnf install https://www.percona.com/downloads/percona-toolkit/3.2.1/binary/redhat/8/x86_64/percona-toolkit-3.2.1-1.el8.x86_64.rpm -y
       cat /etc/redhat-release | grep "CentOS Linux release 7" \
-        && sudo dnf install https://www.percona.com/downloads/percona-toolkit/3.2.0/binary/redhat/7/x86_64/percona-toolkit-3.2.0-1.el7.x86_64.rpm -y
+        && sudo dnf install https://www.percona.com/downloads/percona-toolkit/3.2.1/binary/redhat/7/x86_64/percona-toolkit-3.2.1-1.el7.x86_64.rpm -y
     fi
   fi
 fi
