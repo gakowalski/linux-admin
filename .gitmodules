@@ -7,6 +7,3 @@
 [submodule "external-tools/tuning-primer.sh"]
 	path = external-tools/tuning-primer.sh
 	url = https://github.com/BMDan/tuning-primer.sh
-[submodule "external-tools/mysqlconfigurer"]
-	path = external-tools/mysqlconfigurer
-	url = https://github.com/Releem/mysqlconfigurer
