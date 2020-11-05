@@ -1,8 +1,8 @@
-UDO=''
+#!/bin/bash
+SUDO=''
 if (( $EUID != 0 )); then
     SUDO='sudo'
 fi
-$SUDO a_command
 
 cd /etc/
 $SUDO git init

@@ -149,6 +149,10 @@ fi
 # download recomennded scripts
 wget --version || sudo dnf install wget  -y
 
+# install dependencies for external tools
+## for mysqlconfigurer
+sudo dnf install net-tools perl-JSON perl-Data-Dumper -y
+
 if test -f /usr/local/bin/certbot-auto
 then
   echo Certbot already installed, doing nothing.
