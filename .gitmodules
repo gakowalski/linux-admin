@@ -9,7 +9,7 @@
 	url = https://github.com/jfcoz/postgresqltuner
 [submodule "external-tools/php-fpmpal"]
 	path = external-tools/php-fpmpal
-	url = https://github.com/pksteyn/php-fpmpal
+	url = https://github.com/haxcop/php-fpmpal
 [submodule "external-tools/tuning-primer.sh"]
 	path = external-tools/tuning-primer.sh
 	url = https://github.com/BMDan/tuning-primer.sh
