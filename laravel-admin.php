@@ -180,7 +180,6 @@ if (isset($check)):
       $syntax_report = implode("\n", $syntax_report);
     }
 
-    //info("Detected: $source_file_path, should contain class name $class_name: " . ($contains_class_name? '✔' : 'error!'));
     if ($contains_class_name) {
       if ($verbose) {
         info("✔ $source_file_path: checked if filename and class name are the same");

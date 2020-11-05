@@ -11,7 +11,7 @@ URL=https://github.com/gakowalski/linux-admin
 if test -d $FILE
 then
   echo updating repo at $FILE
-  cd $FILE
+  cd $FILE || exit
   git pull --recurse-submodules
   cd ..
 else
@@ -40,8 +40,13 @@ then
   then
     echo dnf fastest mirror search enabled
   else
-    echo enabling dnf fastest mirror search
-    echo 'fastestmirror=True' | sudo tee -a $FILE
+    read -p "Enable dnf to search for fastest mirror? [y/N] " -n 1 -r < /dev/tty
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]
+    then
+      echo enabling dnf fastest mirror search
+      echo 'fastestmirror=True' | sudo tee -a $FILE
+    fi
   fi
 else
   echo dnf config file not found at standard locations
@@ -82,6 +87,9 @@ else
 
   # dependencies for linux-admin (for posix_getuid() function)
   sudo dnf install php-process -y
+
+  # suggested for Wordpress
+  sudo dnf install php-bcmath php-imagick -y
 fi
 
 if php --version
@@ -103,9 +111,17 @@ fi
 if npm -v
 then
   sudo npm i -g npm
+  if pnpm -v
+  then
+    sudo pnpm add -g pnpm
+  else
+    npm i -g pnpm
+  fi
 else
   cat /etc/redhat-release | grep "CentOS Linux release 8" \
     && sudo dnf module install nodejs:13/default -y
+  npm i -g pnpm
+  npm install -g gnomon
 fi
 
 # install recommended tools
@@ -148,8 +164,8 @@ else
   fi
 fi
 
-docker --version
-if [ $? -eq 0 ]
+
+if docker --version
 then
   echo docker already installed, doing nothing.
 else
@@ -182,8 +198,8 @@ else
   fi
 fi
 
-mysqld --version
-if [ $? -eq 0 ]
+
+if mysqld --version
 then
   echo mysql or MariaDB installed, doing nothing.
 else
@@ -214,9 +230,9 @@ else
       echo Percona Toolkit already installed, doing nothing.
     else
       cat /etc/redhat-release | grep "CentOS Linux release 8" \
-        && sudo dnf install https://www.percona.com/downloads/percona-toolkit/3.2.0/binary/redhat/8/x86_64/percona-toolkit-3.2.0-1.el7.x86_64.rpm -y
+        && sudo dnf install https://www.percona.com/downloads/percona-toolkit/3.2.1/binary/redhat/8/x86_64/percona-toolkit-3.2.1-1.el8.x86_64.rpm -y
       cat /etc/redhat-release | grep "CentOS Linux release 7" \
-        && sudo dnf install https://www.percona.com/downloads/percona-toolkit/3.2.0/binary/redhat/7/x86_64/percona-toolkit-3.2.0-1.el7.x86_64.rpm -y
+        && sudo dnf install https://www.percona.com/downloads/percona-toolkit/3.2.1/binary/redhat/7/x86_64/percona-toolkit-3.2.1-1.el7.x86_64.rpm -y
     fi
   fi
 fi
