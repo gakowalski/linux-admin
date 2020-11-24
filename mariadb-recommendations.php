@@ -56,10 +56,67 @@ function get_variable($var_name, $status = true, $global = false) {
   return $variables[$type][$scope][$var_name];
 }
 
+$meminfo = [];
+
+function get_meminfo($var_name) {
+  global $meminfo;
+
+  if (empty($meminfo)) {
+    $contents = file_get_contents('/proc/meminfo');
+    preg_match_all('/(\w+):\s+(\d+)\s/', $contents, $matches);
+    $meminfo = array_combine($matches[1], $matches[2]);
+  }
+
+  return ($meminfo[$var_name] + 0) * 1024;
+}
+
 extract(get_variable(null, true, false));
 extract(get_variable(null, false, false));
 
 /*** RECOMMENDATION LOGIC BEGINS ***/
+
+$max_memory_global_buffers =
+  $key_buffer_size
+  + $query_cache_size
+  + $innodb_buffer_pool_size
+  + $innodb_log_buffer_size
+//  + $innodb_additional_mem_pool_size // deprecated in 10.2
+//  + $net_buffer_size
+  ;
+
+$max_memory_per_connection = 
+    $read_buffer_size
+    + $read_rnd_buffer_size
+    + $sort_buffer_size
+    + $join_buffer_size
+    + $binlog_cache_size
+    + $thread_stack
+    + $tmp_table_size;
+
+$max_memory =
+  $max_memory_global_buffers
+  + $max_connections * $max_memory_per_connection;
+
+echo "\n Estimated maximum memeory need: $max_memory \n";
+echo "\t Total: " . ($max_memory / (1024 * 1024 * 1024)) . " GB \n";
+echo "\t Global buffers: " . ($max_memory_global_buffers / (1024 * 1024 * 1024)) . " GB \n";
+echo "\t Per connection: " . ($max_memory_per_connection / (1024 * 1024)) . " MB \n";
+echo "\t max_connections: $max_connections \n";
+echo "\t Max_used_connections: $Max_used_connections \n";
+echo "\t Memory_used (all connections): " . (get_variable('Memory_used', true, true) / (1024 * 1024)) . " MB \n";
+echo "\t All system memory: " . (get_meminfo('MemTotal') / (1024 * 1024 * 1024)) . " GB \n";
+
+if ($max_memory > get_meminfo('MemTotal')) {
+  echo "\n Your memory needs exceed total system memory. Consider lowering max_connections.\n";
+  echo "\t Set max_connection to less than " . (int) ((get_meminfo('MemTotal') - $max_memory_global_buffers) / $max_memory_per_connection) . "\n";
+}
+
+if ($tmp_table_size !== $max_heap_table_size) {
+  echo "\n tmp_table_size has different value than max_heap_table_size - this might make analyzing some processes harder. \n";
+  echo "\t tmp_table_size = $tmp_table_size \n";
+  echo "\t max_heap_table_size = $max_heap_table_size \n";
+  echo "\t Consider setting them to the same value. \n";
+}
 
 /* https://www.percona.com/blog/2018/07/03/linux-os-tuning-for-mysql-database-performance/ */
 $swapiness = trim(`cat /proc/sys/vm/swappiness`) + 0;
@@ -89,7 +146,7 @@ if ($innodb_log_file_size < $innodb_buffer_pool_size / 4) {
 }
 
 if ($Key_read_requests / $Key_reads <= 10) {
-  echo "\n Please adjust key_buffer_size (= $key_buffer_size), see: https://mariadb.com/kb/en/optimizing-key_buffer_size/. \n";
+  echo "\n Please increase key_buffer_size (= $key_buffer_size), see: https://mariadb.com/kb/en/optimizing-key_buffer_size/. \n";
   echo "\t Key_read_requests = $Key_read_requests \n";
   echo "\t Key_reads = $Key_reads \n";
   echo "\t Ratio: " . $Key_read_requests / $Key_reads . " \n";
@@ -97,6 +154,28 @@ if ($Key_read_requests / $Key_reads <= 10) {
   echo "\n You have superb Key_read_requests to Key_reads ratio. If you want to save some RAM, you can experiment with lower key_buffer_size values. \n";
 } else {
   echo "\n You have balanced Key_read_requests to Key_reads ratio - very well! \n";
+}
+
+if ($Innodb_buffer_pool_read_requests / $Innodb_buffer_pool_reads <= 10) {
+  echo "\n Please increase innodb_buffer_pool_size (= $innodb_buffer_pool_size) \n";
+  echo "\t Innodb_buffer_pool_read_requests = $Innodb_buffer_pool_read_requests \n";
+  echo "\t Innodb_buffer_pool_reads = $Innodb_buffer_pool_reads \n";
+  echo "\t Ratio: " . $Innodb_buffer_pool_read_requests / $Innodb_buffer_pool_reads . " \n";
+} else if ($Innodb_buffer_pool_read_requests / $Innodb_buffer_pool_reads > 1000) {
+  echo "\n You have superb Innodb_buffer_pool_read_requests to Innodb_buffer_pool_reads ratio. If you want to save some RAM, you can experiment with lower innodb_buffer_pool_size values. \n";
+} else {
+  echo "\n You have balanced Innodb_buffer_pool_read_requests to Innodb_buffer_pool_reads - very well! \n";
+}
+
+if ($Created_tmp_disk_tables && $Created_tmp_tables / $Created_tmp_disk_tables <= 10) {
+  echo "\n Please increase tmp_table_size (= $tmp_table_size) \n";
+  echo "\t Created_tmp_tables = $Created_tmp_tables \n";
+  echo "\t Created_tmp_disk_tables = $Created_tmp_disk_tables \n";
+  echo "\t Ratio: " . $$Created_tmp_tables / $Created_tmp_disk_tables . " \n";
+} else if ($Created_tmp_disk_tables === 0 || ($Created_tmp_disk_tables && $Created_tmp_tables / $Created_tmp_disk_tables > 1000)) {
+  echo "\n You have superb Created_tmp_tables to Created_tmp_disk_tables ratio. If you want to save some RAM, you can experiment with lower tmp_table_size (= $tmp_table_size) values. \n";
+} else {
+  echo "\n You have balanced Created_tmp_tables to Created_tmp_disk_tables - very well! \n";
 }
 
 if ($Opened_files / $Uptime > 5) {
@@ -108,6 +187,17 @@ if ($Opened_files / $Uptime > 5) {
   echo "\n You have superb Opened_files to Uptime ratio. If you want to improve perfomance, you can experiment with lower table_open_cache values. \n";
 } else {
   echo "\n You have balanced Opened_files to Uptime ratio - very well! \n";
+}
+
+if ($Innodb_buffer_pool_reads / $Uptime > 100) {
+  echo "\n Please increase innodb_buffer_pool_size (= $innodb_buffer_pool_size), see: https://mariadb.com/kb/en/mariadb-memory-allocation/. \n";
+  echo "\t Innodb_buffer_pool_reads = $Innodb_buffer_pool_reads \n";
+  echo "\t Uptime = $Uptime \n";
+  echo "\t Ratio: " . $Innodb_buffer_pool_reads / $Uptime . " (reads/second) \n";
+} else if ($Innodb_buffer_pool_reads / $Uptime < 10) {
+  echo "\n You have superb Innodb_buffer_pool_reads to Uptime ratio. If you want to save some RAM, you can experiment with lower innodb_buffer_pool_size values. \n";
+} else {
+  echo "\n You have balanced Innodb_buffer_pool_reads to Uptime ratio - very well! \n";
 }
 
 // https://mariadb.com/kb/en/mariadb-memory-allocation/
