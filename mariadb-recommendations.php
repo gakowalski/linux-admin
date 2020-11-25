@@ -80,18 +80,24 @@ $max_memory_global_buffers =
   + $query_cache_size
   + $innodb_buffer_pool_size
   + $innodb_log_buffer_size
-//  + $innodb_additional_mem_pool_size // deprecated in 10.2
-//  + $net_buffer_size
+  + ($innodb_additional_mem_pool_size ?? 0)  //< deprecated in 10.2
   ;
 
 $max_memory_per_connection = 
-    $read_buffer_size
-    + $read_rnd_buffer_size
-    + $sort_buffer_size
-    + $join_buffer_size
-    + $binlog_cache_size
-    + $thread_stack
-    + $tmp_table_size;
+  $binlog_cache_size
+  + $bulk_insert_buffer_size
+  + $join_buffer_size
+  + $max_allowed_packet
+  + $preload_buffer_size
+  + $query_prealloc_size
+  + $read_buffer_size * 1 //< assumed table quantity = 1
+  + $read_rnd_buffer_size
+  + $sort_buffer_size
+  // + $stored_program_cache //< dont know how to use this
+  + $tmp_table_size
+  + $thread_stack
+  + ($translation_prealloc_size ?? 0) //< MySQL variable
+  ;
 
 $max_memory =
   $max_memory_global_buffers
@@ -127,7 +133,8 @@ if ($swapiness > 1) {
 }
 
 /* https://www.percona.com/blog/2009/01/30/linux-schedulers-in-tpcc-like-benchmark/ */
-$io_schedulers = preg_replace('/[^A-Za-z0-9\-\[\] ]/', '', `cat /sys/block/sda/queue/scheduler`);
+$io_schedulers = `cat /sys/block/sda/queue/scheduler || cat /sys/block/xvda/queue/scheduler`;
+$io_schedulers = preg_replace('/[^A-Za-z0-9\-\[\] ]/', '', $io_schedulers);
 echo "\n Detected IO schedulers: '$io_schedulers' (active in [brackets]), recommended are noop, deadline; discouraged are cfq and anticipatory \n";
 echo "\t To temporarily change scheduler: echo noop > /sys/block/sdb/queue/scheduler \n";
 echo "\t To permanentyl change modify GRUB config GRUB_CMDLINE_LINUX_DEFAULT \n";
@@ -145,13 +152,13 @@ if ($innodb_log_file_size < $innodb_buffer_pool_size / 4) {
   echo "\t Make innodb_log_file_size larger than " . ($innodb_buffer_pool_size / 4) . "\n";
 }
 
-if ($Key_read_requests / $Key_reads <= 10) {
+if ($Key_reads && $Key_read_requests / $Key_reads <= 10) {
   echo "\n Please increase key_buffer_size (= $key_buffer_size), see: https://mariadb.com/kb/en/optimizing-key_buffer_size/. \n";
   echo "\t Key_read_requests = $Key_read_requests \n";
   echo "\t Key_reads = $Key_reads \n";
   echo "\t Ratio: " . $Key_read_requests / $Key_reads . " \n";
-} else if ($Key_read_requests / $Key_reads > 1000) {
-  echo "\n You have superb Key_read_requests to Key_reads ratio. If you want to save some RAM, you can experiment with lower key_buffer_size values. \n";
+} else if ($Key_reads === 0 || ($Key_read_requests / $Key_reads > 1000)) {
+  echo "\n You have superb Key_read_requests to Key_reads ratio. If you want to save some RAM, you can experiment with lower key_buffer_size (= $key_buffer_size) values. \n";
 } else {
   echo "\n You have balanced Key_read_requests to Key_reads ratio - very well! \n";
 }
