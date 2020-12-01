@@ -14,6 +14,9 @@ $main_config_file = find_file([
 
 if ($main_config_file === null) {
   die("Can't find main config file\n");
+} else {
+  echo "\n Config files: ";
+  echo "\n\t Main: $main_config_file";
 }
 
 $config_array = parse_ini_file($main_config_file, true, INI_SCANNER_TYPED);
@@ -35,19 +38,21 @@ if ($config_array['include'] ?? $config_array['global']['include'] ?? 0) {
   $config_files = glob($config_array['include'] ?? $config_array['global']['include']); 
 //  var_dump($config_files);
   foreach ($config_files as $file) {
+    echo "\n\t Pool: $file";
     $config = parse_ini_file($file, true, INI_SCANNER_TYPED);
     $pool_names[] = array_key_first($config);
-    //var_dump($config);
     $config_array = $config_array + $config;
   } 
 }
+
+echo "\n";
 
 //var_dump($pool_names);
 //exit;
 
 foreach ($pool_names as $pool):
 
-echo "\n Basic info:";
+echo "\n Basic info for pool '$pool':";
 echo "\n\t User & Group: " . $config_array[$pool]['user'] . ':' . $config_array[$pool]['group'];
 echo "\n\t Error log: " . $config_array['global']['error_log'];
 if ($config_array[$pool]['php_admin_value']['error_log'] ?? 0) {
@@ -55,7 +60,7 @@ if ($config_array[$pool]['php_admin_value']['error_log'] ?? 0) {
 }
 echo "\n";
 
-echo "\n Process management:";
+echo "\n Process managementi for pool '$pool':";
 echo "\n\t Type: " . $config_array[$pool]['pm'];
 echo "\n\t Max children: " . $config_array[$pool]['pm.max_children'];
 
