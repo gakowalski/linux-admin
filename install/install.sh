@@ -161,10 +161,12 @@ else
   echo
   if [[ $REPLY =~ ^[Yy]$ ]]
   then
-    wget https://dl.eff.org/certbot-auto
-    sudo mv certbot-auto /usr/local/bin/certbot-auto
-    sudo chown root /usr/local/bin/certbot-auto
-    sudo chmod 0755 /usr/local/bin/certbot-auto
+    sudo dnf install snapd -y
+    sudo systemctl enable --now snapd.socket
+    sudo ln -s /var/lib/snapd/snap /snap
+    sudo snap install core; sudo snap refresh core
+    sudo snap install --classic certbot
+    ln -s /snap/bin/certbot /usr/bin/certbot
   fi
 fi
 
