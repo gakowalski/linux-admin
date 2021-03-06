@@ -1,9 +1,18 @@
 #!/bin/sh
 
+#!/bin/bash
+if [ $(id -u) = 0 ]; then
+  echo "You are root user"
+  SUDO_CMD=
+else
+  echo "You are NOT root user"
+  SUDO_CMD=sudo
+fi
+
 # replace yum with dnf
 # dnf is better (safer) at checking dependencies
-dnf --version || sudo yum install dnf -y
-git --version || sudo dnf install git -y
+dnf --version || $SUDO_CMD yum install dnf -y
+git --version || $SUDO_CMD dnf install git -y
 
 FILE=linux-admin
 URL=https://github.com/gakowalski/linux-admin
@@ -33,7 +42,7 @@ then
     echo dnf parallel downloads already set up
   else
     echo setting dnf parallel downloads
-    echo 'max_parallel_downloads=10' | sudo tee -a $FILE
+    echo 'max_parallel_downloads=10' | $SUDO_CMD tee -a $FILE
   fi
 
   if cat $FILE | grep fastestmirror
@@ -45,7 +54,7 @@ then
     if [[ $REPLY =~ ^[Yy]$ ]]
     then
       echo enabling dnf fastest mirror search
-      echo 'fastestmirror=True' | sudo tee -a $FILE
+      echo 'fastestmirror=True' | $SUDO_CMD tee -a $FILE
     fi
   fi
 else
@@ -53,11 +62,11 @@ else
 fi
 
 # epel-repository, needed for ncdu
-test -f /etc/yum.repos.d/epel.repo || sudo dnf install epel-release -y
+test -f /etc/yum.repos.d/epel.repo || $SUDO_CMD dnf install epel-release -y
 
 # for CentOS 8, recomennded in https://fedoraproject.org/wiki/EPEL
 cat /etc/yum.repos.d/CentOS-PowerTools.repo | grep enabled=0 \
-  && sudo dnf config-manager --set-enabled PowerTools
+  && $SUDO_CMD dnf config-manager --set-enabled PowerTools
 
 # based on https://rpms.remirepo.net/wizard/
 if test -f /etc/yum.repos.d/remi.repo
@@ -65,31 +74,31 @@ then
   echo REMI repo already installed, doing nothing.
 else
   cat /etc/redhat-release | grep "CentOS Linux release 8" \
-    && sudo dnf install https://rpms.remirepo.net/enterprise/remi-release-8.rpm  -y
+    && $SUDO_CMD dnf install https://rpms.remirepo.net/enterprise/remi-release-8.rpm  -y
   cat /etc/redhat-release | grep "CentOS Linux release 7" \
-    && sudo dnf install https://rpms.remirepo.net/enterprise/remi-release-7.rpm  -y
+    && $SUDO_CMD dnf install https://rpms.remirepo.net/enterprise/remi-release-7.rpm  -y
 fi
 
-dnf list installed | grep yum-utils || sudo dnf install yum-utils -y
+dnf list installed | grep yum-utils || $SUDO_CMD dnf install yum-utils -y
 
 if php --version
 then
   echo PHP already installed, doing nothing.
 else
-  sudo dnf module reset php
-  sudo dnf module install php:remi-7.4 -y
+  $SUDO_CMD dnf module reset php
+  $SUDO_CMD dnf module install php:remi-7.4 -y
   # ^ this installs php php-cli, common, fpm, json, mbstring, xml
 
-  sudo dnf install httpd php-gd php-mysqlnd php-pdo php-soap php-xml php-intl -y
+  $SUDO_CMD dnf install httpd php-gd php-mysqlnd php-pdo php-soap php-xml php-intl -y
 
   # dependencies for composer
-  sudo dnf install php-zip php-json -y
+  $SUDO_CMD dnf install php-zip php-json -y
 
   # dependencies for linux-admin (for posix_getuid() function)
-  sudo dnf install php-process -y
+  $SUDO_CMD dnf install php-process -y
 
   # suggested for Wordpress
-  sudo dnf install php-bcmath php-imagick -y
+  $SUDO_CMD dnf install php-bcmath php-imagick -y
 fi
 
 if php --version
@@ -102,56 +111,56 @@ then
     php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
     php composer-setup.php
     rm composer-setup.php
-    sudo mv composer.phar /usr/local/bin/composer
-    sudo chmod +x /usr/local/bin/composer
+    $SUDO_CMD mv composer.phar /usr/local/bin/composer
+    $SUDO_CMD chmod +x /usr/local/bin/composer
   fi
 fi
 
 # install nodejs and npm
 if npm -v
 then
-  sudo npm i -g npm
+  $SUDO_CMD npm i -g npm
   if pnpm -v
   then
-    sudo pnpm add -g pnpm
+    $SUDO_CMD pnpm add -g pnpm
   else
     npm i -g pnpm
   fi
 else
   cat /etc/redhat-release | grep "CentOS Linux release 8" \
-    && sudo dnf module install nodejs:13/default -y
+    && $SUDO_CMD dnf module install nodejs:13/default -y
   npm i -g pnpm
   npm install -g gnomon
 fi
 
 # install recommended tools
-ncdu --version || sudo dnf install ncdu -y
-locate --version || { sudo dnf install mlocate -y && sudo updatedb; }
-iftop -h | grep version || sudo dnf install iftop -y
+ncdu --version || $SUDO_CMD dnf install ncdu -y
+locate --version || { $SUDO_CMD dnf install mlocate -y && $SUDO_CMD updatedb; }
+iftop -h | grep version || $SUDO_CMD dnf install iftop -y
 
-python2 --version || sudo dnf install python2 -y
-python3 --version || sudo dnf install python3 python3-devel -y
+python2 --version || $SUDO_CMD dnf install python2 -y
+python3 --version || $SUDO_CMD dnf install python3 python3-devel -y
 
 if python3 --version
 then
   # sometimes needed for python packages (eg. glances)
-  cat /etc/redhat-release | grep "CentOS" && sudo dnf install redhat-rpm-config -y
-  sudo dnf install gcc -y
+  cat /etc/redhat-release | grep "CentOS" && $SUDO_CMD dnf install redhat-rpm-config -y
+  $SUDO_CMD dnf install gcc -y
 
   if glances --version
   then
     echo glances already installed, doing nothing.
   else
-    sudo pip3 install glances
+    $SUDO_CMD pip3 install glances
   fi
 fi
 
 # download recomennded scripts
-wget --version || sudo dnf install wget  -y
+wget --version || $SUDO_CMD dnf install wget  -y
 
 # install dependencies for external tools
 ## for mysqlconfigurer
-sudo dnf install net-tools perl-JSON perl-Data-Dumper -y
+$SUDO_CMD dnf install net-tools perl-JSON perl-Data-Dumper -y
 
 if test -f /usr/local/bin/certbot-auto
 then
@@ -161,11 +170,11 @@ else
   echo
   if [[ $REPLY =~ ^[Yy]$ ]]
   then
-    sudo dnf install snapd -y
-    sudo systemctl enable --now snapd.socket
-    sudo ln -s /var/lib/snapd/snap /snap
-    sudo snap install core; sudo snap refresh core
-    sudo snap install --classic certbot
+    $SUDO_CMD dnf install snapd -y
+    $SUDO_CMD systemctl enable --now snapd.socket
+    $SUDO_CMD ln -s /var/lib/snapd/snap /snap
+    $SUDO_CMD snap install core; $SUDO_CMD snap refresh core
+    $SUDO_CMD snap install --classic certbot
     ln -s /snap/bin/certbot /usr/bin/certbot
   fi
 fi
@@ -180,27 +189,27 @@ else
   if [[ $REPLY =~ ^[Yy]$ ]]
   then
     # install docker
-    sudo dnf install device-mapper-persistent-data lvm2 -y
-    test -f /etc/yum.repos.d/docker-ce.repo || sudo dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-    sudo dnf install docker-ce docker-ce-cli containerd.io -y --nobest
+    $SUDO_CMD dnf install device-mapper-persistent-data lvm2 -y
+    test -f /etc/yum.repos.d/docker-ce.repo || $SUDO_CMD dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+    $SUDO_CMD dnf install docker-ce docker-ce-cli containerd.io -y --nobest
 
     # start now and test
-    sudo systemctl start docker
-    sudo docker run hello-world
+    $SUDO_CMD systemctl start docker
+    $SUDO_CMD docker run hello-world
 
     # install portainer, accessible at 127.0.0.1:9000
-    sudo docker volume create portainer_data
-    sudo docker run -d -p 8000:8000 -p 9000:9000 --name=portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer
+    $SUDO_CMD docker volume create portainer_data
+    $SUDO_CMD docker run -d -p 8000:8000 -p 9000:9000 --name=portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer
 
     # start on-boot
-    sudo systemctl enable docker
+    $SUDO_CMD systemctl enable docker
 
     # usergroup for users priviledged to use docker without sudo
-    sudo groupadd docker
+    $SUDO_CMD groupadd docker
 
     # add this user to
-    groups | grep adm || sudo usermod --append --groups adm `whoami`
-    groups | grep docker || sudo usermod --append --groups docker `whoami`
+    groups | grep adm || $SUDO_CMD usermod --append --groups adm `whoami`
+    groups | grep docker || $SUDO_CMD usermod --append --groups docker `whoami`
   fi
 fi
 
@@ -213,18 +222,18 @@ else
   echo
   if [[ $REPLY =~ ^[Yy]$ ]]
   then
-    test -f /etc/yum.repos.d/mariadb.repo || sudo dnf config-manager --add-repo linux-admin/external-tools/yum.repos.d/mariadb.repo
-    sudo dnf install MariaDB-server -y
+    test -f /etc/yum.repos.d/mariadb.repo || $SUDO_CMD dnf config-manager --add-repo linux-admin/external-tools/yum.repos.d/mariadb.repo
+    $SUDO_CMD dnf install MariaDB-server -y
 
     # start now
-    sudo systemctl start mariadb
+    $SUDO_CMD systemctl start mariadb
 
     # start on-boot
-    sudo systemctl enable mariadb
+    $SUDO_CMD systemctl enable mariadb
 
     # Two all-privilege accounts were created.
     # One is root@localhost, it has no password, but you need to
-    # be system 'root' user to connect. Use, for example, sudo mysql
+    # be system 'root' user to connect. Use, for example, $SUDO_CMD mysql
     # The second is mysql@localhost, it has no password either, but
     # you need to be the system 'mysql' user to connect.
     # After connecting you can set the password, if you would need to be
@@ -236,9 +245,9 @@ else
       echo Percona Toolkit already installed, doing nothing.
     else
       cat /etc/redhat-release | grep "CentOS Linux release 8" \
-        && sudo dnf install https://www.percona.com/downloads/percona-toolkit/3.2.1/binary/redhat/8/x86_64/percona-toolkit-3.2.1-1.el8.x86_64.rpm -y
+        && $SUDO_CMD dnf install https://www.percona.com/downloads/percona-toolkit/3.2.1/binary/redhat/8/x86_64/percona-toolkit-3.2.1-1.el8.x86_64.rpm -y
       cat /etc/redhat-release | grep "CentOS Linux release 7" \
-        && sudo dnf install https://www.percona.com/downloads/percona-toolkit/3.2.1/binary/redhat/7/x86_64/percona-toolkit-3.2.1-1.el7.x86_64.rpm -y
+        && $SUDO_CMD dnf install https://www.percona.com/downloads/percona-toolkit/3.2.1/binary/redhat/7/x86_64/percona-toolkit-3.2.1-1.el7.x86_64.rpm -y
     fi
   fi
 fi
@@ -250,14 +259,14 @@ then
   if [[ $REPLY =~ ^[Yy]$ ]]
   then
     # Software Updates and Applications (cockpit package manager) tabs
-    sudo dnf install cockpit-packagekit -y
+    $SUDO_CMD dnf install cockpit-packagekit -y
 
     # start now and enable on-boot
-    sudo systemctl start cockpit.socket
-    sudo systemctl enable cockpit.socket
+    $SUDO_CMD systemctl start cockpit.socket
+    $SUDO_CMD systemctl enable cockpit.socket
 
     # for Diagnostic Reports tab
-    sosreport --help || sudo dnf install sos -y
+    sosreport --help || $SUDO_CMD dnf install sos -y
   fi
 fi
 
@@ -269,8 +278,8 @@ else
   echo
   if [[ $REPLY =~ ^[Yy]$ ]]
   then
-    test -f /etc/yum.repos.d/webmin.repo || sudo dnf config-manager --add-repo linux-admin/external-tools/yum.repos.d/webmin.repo
-    sudo dnf install webmin -y
+    test -f /etc/yum.repos.d/webmin.repo || $SUDO_CMD dnf config-manager --add-repo linux-admin/external-tools/yum.repos.d/webmin.repo
+    $SUDO_CMD dnf install webmin -y
   fi
 fi
 
@@ -280,14 +289,14 @@ then
   echo
   if [[ $REPLY =~ ^[Yy]$ ]]
   then
-    sudo systemctl start httpd
-    sudo systemctl enable httpd
+    $SUDO_CMD systemctl start httpd
+    $SUDO_CMD systemctl enable httpd
 
     # to enable HTTPS
-    sudo httpd -M | grep ssl || sudo dnf install mod_ssl -y
+    $SUDO_CMD httpd -M | grep ssl || $SUDO_CMD dnf install mod_ssl -y
 
     # to enable proxying to docker services
-    sudo setsebool -P httpd_can_network_connect 1
+    $SUDO_CMD setsebool -P httpd_can_network_connect 1
   fi
 fi
 
@@ -297,7 +306,7 @@ echo
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
   echo Trying to change.
-  cat /etc/redhat-release | grep "CentOS" && test -f /etc/localtime && sudo ln -sf /usr/share/zoneinfo/Europe/Warsaw /etc/localtime
+  cat /etc/redhat-release | grep "CentOS" && test -f /etc/localtime && $SUDO_CMD ln -sf /usr/share/zoneinfo/Europe/Warsaw /etc/localtime
   # alternative way, maybe more portable: use timedatectl
 fi
 date
@@ -308,23 +317,23 @@ then
   echo
   if [[ $REPLY =~ ^[Yy]$ ]]
   then
-    sudo dnf install firewalld -y
-    sudo systemctl start firewalld
-    sudo firewall-cmd --list-services --permanent
+    $SUDO_CMD dnf install firewalld -y
+    $SUDO_CMD systemctl start firewalld
+    $SUDO_CMD firewall-cmd --list-services --permanent
     if httpd -v
     then
-      sudo firewall-cmd --zone=public --add-service=http  --permanent
-      sudo firewall-cmd --zone=public --add-service=https  --permanent
-      sudo firewall-cmd --reload
+      $SUDO_CMD firewall-cmd --zone=public --add-service=http  --permanent
+      $SUDO_CMD firewall-cmd --zone=public --add-service=https  --permanent
+      $SUDO_CMD firewall-cmd --reload
     fi
 
 
     if docker container ls | grep portainer
     then
-      sudo firewall-cmd --zone=public --add-port=9000/tcp --permanent
-      sudo firewall-cmd --reload
+      $SUDO_CMD firewall-cmd --zone=public --add-port=9000/tcp --permanent
+      $SUDO_CMD firewall-cmd --reload
     fi
 
-    sudo systemctl enable firewalld
+    $SUDO_CMD systemctl enable firewalld
   fi
 fi
