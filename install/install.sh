@@ -12,7 +12,7 @@ fi
 # replace yum with dnf
 # dnf is better (safer) at checking dependencies
 dnf --version || $SUDO_CMD yum install dnf -y
-$INSTALL_FORCED = dnf install -y
+INSTALL_FORCED = dnf install -y
 $SUDO_CMD $INSTALL_FORCED dnf-plugins-core
 
 git --version || $SUDO_CMD $INSTALL_FORCED git
