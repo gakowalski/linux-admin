@@ -11,8 +11,16 @@ fi
 
 # replace yum with dnf
 # dnf is better (safer) at checking dependencies
-dnf --version || $SUDO_CMD yum install dnf -y
-git --version || $SUDO_CMD dnf install git -y
+if dnf --version
+then
+
+else
+  $SUDO_CMD yum install dnf -y
+fi
+$INSTALL_FORCED = dnf install -y
+$SUDO_CMD $INSTALL_FORCED dnf-plugins-core
+
+git --version || $SUDO_CMD $INSTALL_FORCED git
 
 FILE=linux-admin
 URL=https://github.com/gakowalski/linux-admin
@@ -44,25 +52,12 @@ then
     echo setting dnf parallel downloads
     echo 'max_parallel_downloads=10' | $SUDO_CMD tee -a $FILE
   fi
-
-  if cat $FILE | grep fastestmirror
-  then
-    echo dnf fastest mirror search enabled
-  else
-    read -p "Enable dnf to search for fastest mirror? [y/N] " -n 1 -r < /dev/tty
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]
-    then
-      echo enabling dnf fastest mirror search
-      echo 'fastestmirror=True' | $SUDO_CMD tee -a $FILE
-    fi
-  fi
 else
-  echo dnf config file not found at standard locations
+  echo dnf config file not found at standard location
 fi
 
 # epel-repository, needed for ncdu
-test -f /etc/yum.repos.d/epel.repo || $SUDO_CMD dnf install epel-release -y
+test -f /etc/yum.repos.d/epel.repo || $SUDO_CMD $INSTALL_FORCED epel-release
 
 # for CentOS 8, recomennded in https://fedoraproject.org/wiki/EPEL
 cat /etc/yum.repos.d/CentOS-PowerTools.repo | grep enabled=0 \
@@ -74,12 +69,12 @@ then
   echo REMI repo already installed, doing nothing.
 else
   cat /etc/redhat-release | grep "CentOS Linux release 8" \
-    && $SUDO_CMD dnf install https://rpms.remirepo.net/enterprise/remi-release-8.rpm  -y
+    && $SUDO_CMD $INSTALL_FORCED https://rpms.remirepo.net/enterprise/remi-release-8.rpm
   cat /etc/redhat-release | grep "CentOS Linux release 7" \
-    && $SUDO_CMD dnf install https://rpms.remirepo.net/enterprise/remi-release-7.rpm  -y
+    && $SUDO_CMD $INSTALL_FORCED https://rpms.remirepo.net/enterprise/remi-release-7.rpm
 fi
 
-dnf list installed | grep yum-utils || $SUDO_CMD dnf install yum-utils -y
+# dnf list installed | grep yum-utils || $SUDO_CMD $INSTALL_FORCED yum-utils
 
 if php --version
 then
@@ -88,44 +83,35 @@ else
   $SUDO_CMD dnf module reset php
   $SUDO_CMD dnf module install php:remi-7.4 -y
   # ^ this installs php php-cli, common, fpm, json, mbstring, xml
-
-  $SUDO_CMD dnf install httpd php-gd php-mysqlnd php-pdo php-soap php-xml php-intl -y
-
-  # dependencies for composer
-  $SUDO_CMD dnf install php-zip php-json -y
-
-  # dependencies for linux-admin (for posix_getuid() function)
-  $SUDO_CMD dnf install php-process -y
-
-  # suggested for Wordpress
-  $SUDO_CMD dnf install php-bcmath php-imagick -y
 fi
 
-if php --version
+$SUDO_CMD $INSTALL_FORCED httpd php-gd php-mysqlnd php-pdo php-soap php-xml php-intl php-opcache
+
+# dependencies for composer
+$SUDO_CMD $INSTALL_FORCED php-zip php-json
+
+# dependencies for linux-admin (for posix_getuid() function)
+$SUDO_CMD $INSTALL_FORCED php-process
+
+# suggested for Wordpress
+$SUDO_CMD $INSTALL_FORCED php-bcmath php-imagick
+
+# install composer globally
+if composer --version
 then
-  # install composer globally
-  if composer --version
-  then
-    composer self-update
-  else
-    php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-    php composer-setup.php
-    rm composer-setup.php
-    $SUDO_CMD mv composer.phar /usr/local/bin/composer
-    $SUDO_CMD chmod +x /usr/local/bin/composer
-  fi
+  composer self-update
+else
+  php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+  php composer-setup.php
+  rm composer-setup.php
+  $SUDO_CMD mv composer.phar /usr/local/bin/composer
+  $SUDO_CMD chmod +x /usr/local/bin/composer
 fi
 
 # install nodejs and npm
 if npm -v
 then
   $SUDO_CMD npm i -g npm
-  if pnpm -v
-  then
-    $SUDO_CMD pnpm add -g pnpm
-  else
-    npm i -g pnpm
-  fi
 else
   cat /etc/redhat-release | grep "CentOS Linux release 8" \
     && $SUDO_CMD dnf module install nodejs:13/default -y
@@ -134,18 +120,18 @@ else
 fi
 
 # install recommended tools
-ncdu --version || $SUDO_CMD dnf install ncdu -y
-locate --version || { $SUDO_CMD dnf install mlocate -y && $SUDO_CMD updatedb; }
-iftop -h | grep version || $SUDO_CMD dnf install iftop -y
+ncdu --version || $SUDO_CMD $INSTALL_FORCED ncdu
+locate --version || { $SUDO_CMD $INSTALL_FORCED mlocate && $SUDO_CMD updatedb; }
+iftop -h | grep version || $SUDO_CMD $INSTALL_FORCED iftop
 
-python2 --version || $SUDO_CMD dnf install python2 -y
-python3 --version || $SUDO_CMD dnf install python3 python3-devel -y
+python2 --version || $SUDO_CMD $INSTALL_FORCED python2
+python3 --version || $SUDO_CMD $INSTALL_FORCED python3 python3-devel
 
 if python3 --version
 then
   # sometimes needed for python packages (eg. glances)
-  cat /etc/redhat-release | grep "CentOS" && $SUDO_CMD dnf install redhat-rpm-config -y
-  $SUDO_CMD dnf install gcc -y
+  cat /etc/redhat-release | grep "CentOS" && $SUDO_CMD $INSTALL_FORCED redhat-rpm-config
+  $SUDO_CMD $INSTALL_FORCED gcc
 
   if glances --version
   then
@@ -156,11 +142,11 @@ then
 fi
 
 # download recomennded scripts
-wget --version || $SUDO_CMD dnf install wget  -y
+wget --version || $SUDO_CMD $INSTALL_FORCED wget
 
 # install dependencies for external tools
 ## for mysqlconfigurer
-$SUDO_CMD dnf install net-tools perl-JSON perl-Data-Dumper -y
+$SUDO_CMD $INSTALL_FORCED net-tools perl-JSON perl-Data-Dumper
 
 if test -f /usr/local/bin/certbot-auto
 then
@@ -170,7 +156,7 @@ else
   echo
   if [[ $REPLY =~ ^[Yy]$ ]]
   then
-    $SUDO_CMD dnf install snapd -y
+    $SUDO_CMD $INSTALL_FORCED snapd
     $SUDO_CMD systemctl enable --now snapd.socket
     $SUDO_CMD ln -s /var/lib/snapd/snap /snap
     $SUDO_CMD snap install core; $SUDO_CMD snap refresh core
@@ -189,9 +175,9 @@ else
   if [[ $REPLY =~ ^[Yy]$ ]]
   then
     # install docker
-    $SUDO_CMD dnf install device-mapper-persistent-data lvm2 -y
+    $SUDO_CMD $INSTALL_FORCED device-mapper-persistent-data lvm2
     test -f /etc/yum.repos.d/docker-ce.repo || $SUDO_CMD dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-    $SUDO_CMD dnf install docker-ce docker-ce-cli containerd.io -y --nobest
+    $SUDO_CMD $INSTALL_FORCED docker-ce docker-ce-cli containerd.io --nobest
 
     # start now and test
     $SUDO_CMD systemctl start docker
@@ -223,7 +209,7 @@ else
   if [[ $REPLY =~ ^[Yy]$ ]]
   then
     test -f /etc/yum.repos.d/mariadb.repo || $SUDO_CMD dnf config-manager --add-repo linux-admin/external-tools/yum.repos.d/mariadb.repo
-    $SUDO_CMD dnf install MariaDB-server -y
+    $SUDO_CMD $INSTALL_FORCED MariaDB-server
 
     # start now
     $SUDO_CMD systemctl start mariadb
@@ -245,9 +231,9 @@ else
       echo Percona Toolkit already installed, doing nothing.
     else
       cat /etc/redhat-release | grep "CentOS Linux release 8" \
-        && $SUDO_CMD dnf install https://www.percona.com/downloads/percona-toolkit/3.2.1/binary/redhat/8/x86_64/percona-toolkit-3.2.1-1.el8.x86_64.rpm -y
+        && $SUDO_CMD $INSTALL_FORCED https://www.percona.com/downloads/percona-toolkit/3.2.1/binary/redhat/8/x86_64/percona-toolkit-3.2.1-1.el8.x86_64.rpm
       cat /etc/redhat-release | grep "CentOS Linux release 7" \
-        && $SUDO_CMD dnf install https://www.percona.com/downloads/percona-toolkit/3.2.1/binary/redhat/7/x86_64/percona-toolkit-3.2.1-1.el7.x86_64.rpm -y
+        && $SUDO_CMD $INSTALL_FORCED https://www.percona.com/downloads/percona-toolkit/3.2.1/binary/redhat/7/x86_64/percona-toolkit-3.2.1-1.el7.x86_64.rpm
     fi
   fi
 fi
@@ -259,14 +245,14 @@ then
   if [[ $REPLY =~ ^[Yy]$ ]]
   then
     # Software Updates and Applications (cockpit package manager) tabs
-    $SUDO_CMD dnf install cockpit-packagekit -y
+    $SUDO_CMD $INSTALL_FORCED cockpit-packagekit
 
     # start now and enable on-boot
     $SUDO_CMD systemctl start cockpit.socket
     $SUDO_CMD systemctl enable cockpit.socket
 
     # for Diagnostic Reports tab
-    sosreport --help || $SUDO_CMD dnf install sos -y
+    sosreport --help || $SUDO_CMD $INSTALL_FORCED sos
   fi
 fi
 
@@ -279,7 +265,7 @@ else
   if [[ $REPLY =~ ^[Yy]$ ]]
   then
     test -f /etc/yum.repos.d/webmin.repo || $SUDO_CMD dnf config-manager --add-repo linux-admin/external-tools/yum.repos.d/webmin.repo
-    $SUDO_CMD dnf install webmin -y
+    $SUDO_CMD $INSTALL_FORCED webmin
   fi
 fi
 
@@ -293,7 +279,7 @@ then
     $SUDO_CMD systemctl enable httpd
 
     # to enable HTTPS
-    $SUDO_CMD httpd -M | grep ssl || $SUDO_CMD dnf install mod_ssl -y
+    $SUDO_CMD httpd -M | grep ssl || $SUDO_CMD $INSTALL_FORCED mod_ssl
 
     # to enable proxying to docker services
     $SUDO_CMD setsebool -P httpd_can_network_connect 1
@@ -317,7 +303,7 @@ then
   echo
   if [[ $REPLY =~ ^[Yy]$ ]]
   then
-    $SUDO_CMD dnf install firewalld -y
+    $SUDO_CMD $INSTALL_FORCED firewalld
     $SUDO_CMD systemctl start firewalld
     $SUDO_CMD firewall-cmd --list-services --permanent
     if httpd -v
