@@ -226,9 +226,9 @@ else
       echo Percona Toolkit already installed, doing nothing.
     else
       cat /etc/redhat-release | grep "CentOS Linux release 8" \
-        && $SUDO_CMD $INSTALL_FORCED https://www.percona.com/downloads/percona-toolkit/3.2.1/binary/redhat/8/x86_64/percona-toolkit-3.2.1-1.el8.x86_64.rpm
+        && $SUDO_CMD $INSTALL_FORCED https://downloads.percona.com/downloads/percona-toolkit/3.3.1/binary/redhat/8/x86_64/percona-toolkit-3.3.1-1.el8.x86_64.rpm
       cat /etc/redhat-release | grep "CentOS Linux release 7" \
-        && $SUDO_CMD $INSTALL_FORCED https://www.percona.com/downloads/percona-toolkit/3.2.1/binary/redhat/7/x86_64/percona-toolkit-3.2.1-1.el7.x86_64.rpm
+        && $SUDO_CMD $INSTALL_FORCED https://downloads.percona.com/downloads/percona-toolkit/3.3.1/binary/redhat/7/x86_64/percona-toolkit-3.3.1-1.el7.x86_64.rpm
     fi
   fi
 fi
