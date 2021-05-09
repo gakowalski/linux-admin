@@ -91,6 +91,9 @@ $SUDO_CMD $INSTALL_FORCED php-process
 # suggested for Wordpress
 $SUDO_CMD $INSTALL_FORCED php-bcmath php-imagick
 
+# suggested for Wordpress plugin Loco Translate
+$SUDO_CMD $INSTALL_FORCED php-mbstring
+
 # install composer globally
 if composer --version
 then
