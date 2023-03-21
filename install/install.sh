@@ -36,21 +36,6 @@ else
   fi
 fi
 
-# some speedup
-FILE=/etc/dnf/dnf.conf
-if test -f $FILE
-then
-  if cat $FILE | grep max_parallel_downloads
-  then
-    echo dnf parallel downloads already set up
-  else
-    echo setting dnf parallel downloads
-    echo 'max_parallel_downloads=10' | $SUDO_CMD tee -a $FILE
-  fi
-else
-  echo dnf config file not found at standard location
-fi
-
 # epel-repository, needed for ncdu
 test -f /etc/yum.repos.d/epel.repo || $SUDO_CMD $INSTALL_FORCED epel-release
 
