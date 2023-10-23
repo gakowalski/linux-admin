@@ -124,7 +124,7 @@ echo "\t All system memory: " . print_byte_size_in_proper_units(get_meminfo('Mem
 
 if ($max_memory > get_meminfo('MemTotal')) {
   echo "\n Your memory needs exceed total system memory. Consider lowering max_connections.\n";
-  echo "\t Set max_connection to less than " . (int) ((get_meminfo('MemTotal') - $max_memory_global_buffers) / $max_memory_per_connection) . "\n";
+  echo "\t Set max_connections to less than " . (int) ((get_meminfo('MemTotal') - $max_memory_global_buffers) / $max_memory_per_connection) . "\n";
 }
 
 if ($tmp_table_size !== $max_heap_table_size) {
